@@ -1,20 +1,22 @@
-from dataclasses import dataclass
-import causaldag as cd
-from causaldag import GaussIntervention, InterventionalDistribution
 from config import DATA_FOLDER
+
 import os
+import random
+from dataclasses import dataclass
 import numpy as np
 from typing import List, Tuple
 import itertools as itr
-import random
-from collections import namedtuple
-from causaldag.inference.structural import unknown_target_igsp
-from causaldag.utils.ci_tests import kci_invariance_test, gauss_ci_test
 from tqdm import tqdm
 import multiprocessing
+from functools import partial
+
+import causaldag as cd
+from causaldag import GaussIntervention, SoftInterventionalDistribution
+from causaldag.inference.structural import unknown_target_igsp, igsp
+from causaldag.utils.ci_tests import kci_invariance_test, gauss_ci_test
+
 np.random.seed(1729)
 random.seed(1729)
-from functools import partial
 kci_no_regress = partial(kci_invariance_test, regress=False)
 
 
@@ -38,6 +40,7 @@ class SampleSetting:
 
 @dataclass(frozen=True)
 class AlgSetting:
+    alg: str
     nruns: int
     depth: int
     alpha: float
@@ -51,17 +54,13 @@ class AlgSetting:
 class DagConfig:
     dataset_name: str
     nnodes: int
-    nneighbors_list: List[float]
+    settings_list: List[DagSetting]
     ngraphs: int
-
-    @property
-    def settings(self):
-        return [DagSetting(nneighbors=nneighbors) for nneighbors in self.nneighbors_list]
 
     @property
     def setting_folders(self):
         base_folder = os.path.join(DATA_FOLDER, self.dataset_name, 'dags')
-        return {setting: os.path.join(base_folder, str(setting)) for setting in self.settings}
+        return {setting: os.path.join(base_folder, str(setting)) for setting in self.settings_list}
 
     @property
     def setting2dag_folders(self):
@@ -99,22 +98,12 @@ class DagConfig:
 @dataclass
 class SampleConfig:
     dataset_name: str
-    nsamples_list: List[int]
-    ntargets_list: List[Tuple[int, int]]
-    nsettings_list: List[int]
+    settings_list: List[SampleSetting]
     dag_config: DagConfig
-    intervention: InterventionalDistribution
+    intervention: SoftInterventionalDistribution
 
     def __post_init__(self):
         self.samples = None
-
-    @property
-    def settings(self):
-        return [
-            SampleSetting(nsamples=nsamples, ntargets=ntargets, nsettings=nsettings)
-            for nsamples, ntargets, nsettings
-            in itr.product(self.nsamples_list, self.ntargets_list, self.nsettings_list)
-        ]
 
     def _save_samples(self, verbose=True):
         if verbose: print("Saving samples")
@@ -124,7 +113,7 @@ class SampleConfig:
             graph2sample_settings2samples_dict = []
             for g, dag_folder in zip(graphs, self.dag_config.setting2dag_folders[dag_setting]):
                 sample_settings2samples_dict = {}
-                for ss in self.settings:
+                for ss in self.settings_list:
                     # === RANDOMLY PICK INTERVENTION NODES AND WHICH ARE KNOWN
                     all_iv_nodes_list = [frozenset(random.sample(nodes_list, sum(ss.ntargets))) for _ in range(ss.nsettings)]
                     known_iv_nodes_list = [frozenset(random.sample(all_iv_nodes, ss.ntargets[0])) for all_iv_nodes in all_iv_nodes_list]
@@ -158,7 +147,7 @@ class SampleConfig:
             graph2sample_settings2samples_dict = []
             for dag_folder in dag_folders:
                 sample_settings2samples_dict = {}
-                for ss in self.settings:
+                for ss in self.settings_list:
                     sample_folder = os.path.join(dag_folder, 'samples', str(ss))
                     iv_sample_folder = os.path.join(sample_folder, 'interventional')
 
@@ -202,17 +191,36 @@ def _run_alg_graph(tup):
 
         alg_setting2results = {}
         for alg_setting in alg_settings:
-            est_dag = unknown_target_igsp(
-                samples_dict,
-                suffstat,
-                nnodes,
-                gauss_ci_test,
-                kci_invariance_test,
-                alpha=alg_setting.alpha,
-                alpha_invariance=alg_setting.alpha_invariant,
-                depth=alg_setting.depth,
-                nruns=alg_setting.nruns
-            )
+            if alg_setting.alg == 'utigsp':
+                est_dag = unknown_target_igsp(
+                    samples_dict,
+                    suffstat,
+                    nnodes,
+                    gauss_ci_test,
+                    kci_invariance_test,
+                    alpha=alg_setting.alpha,
+                    alpha_invariance=alg_setting.alpha_invariant,
+                    depth=alg_setting.depth,
+                    nruns=alg_setting.nruns
+                )
+            elif alg_setting.alg == 'igsp':
+                est_dag = igsp(
+                    samples_dict,
+                    suffstat,
+                    nnodes,
+                    gauss_ci_test,
+                    kci_invariance_test,
+                    alpha=alg_setting.alpha,
+                    alpha_invariance=alg_setting.alpha_invariant,
+                    depth=alg_setting.depth,
+                    nruns=alg_setting.nruns
+                )
+            elif alg_setting.alg == 'gies':
+                raise NotImplementedError
+            elif alg_setting.alg == 'icp':
+                raise NotImplementedError
+            else:
+                raise ValueError('alg must be one of utigsp, igsp, icp, or gies')
             alg_setting2results[alg_setting] = est_dag
         sample_setting2results[ss] = alg_setting2results
     return sample_setting2results
@@ -221,27 +229,16 @@ def _run_alg_graph(tup):
 @dataclass
 class AlgConfig:
     dataset_name: str
-    nruns_list: List[int]
-    depth_list: List[int]
-    alpha_list: List[float]
-    alpha_invariant_list: List[float]
+    settings_list: List[AlgSetting]
     dag_config: DagConfig
     sample_config: SampleConfig
-
-    @property
-    def settings(self):
-        return [
-            AlgSetting(nruns=nruns, depth=depth, alpha=alpha, alpha_invariant=alpha_invariant)
-            for nruns, depth, alpha, alpha_invariant in
-            itr.product(self.nruns_list, self.depth_list, self.alpha_list, self.alpha_invariant_list)
-        ]
 
     def run_alg(self):
         print("Running algorithm")
         dag_setting2results = {}
         for dag_setting, dag_folders in self.dag_config.setting2dag_folders.items():
             # DO IT THIS WAY SO WE CAN HAVE A PROGRESS BAR FOR THE RESULTS
-            args = zip(itr.repeat(self.settings), itr.repeat(self.sample_config.settings), dag_folders)
+            args = zip(itr.repeat(self.settings_list), itr.repeat(self.sample_config.settings), dag_folders)
             with multiprocessing.Pool(multiprocessing.cpu_count() - 1) as POOL:
                 dag_setting2results[dag_setting] = list(tqdm(POOL.imap(_run_alg_graph, args), total=len(dag_folders)))
 
@@ -255,7 +252,7 @@ class AlgConfig:
                             str(dag_setting),
                             'dag%d' % i,
                             str(sample_setting),
-                            'utigsp',
+                            alg_setting.alg,
                             str(alg_setting) + '.txt'
                         )
                         os.makedirs(os.path.dirname(filename), exist_ok=True)
@@ -270,9 +267,10 @@ if __name__ == '__main__':
 
     test_sample_config = SampleConfig(
         dataset_name='test',
-        nsamples_list=[100],
-        ntargets_list=[(1, 0)],
-        nsettings_list=[1],
+        settings_list=[
+            SampleSetting(nsamples=nsamples, ntargets=ntargets, nsettings=nsettings)
+            for nsamples, ntargets, nsettings in itr.product([100], [(1, 1)], [1])
+        ],
         intervention=GaussIntervention(0, 2),
         dag_config=test_dag_config
     )
@@ -280,10 +278,10 @@ if __name__ == '__main__':
 
     test_alg_config = AlgConfig(
         dataset_name='test',
-        nruns_list=[10],
-        depth_list=[4],
-        alpha_list=[.01],
-        alpha_invariant_list=[.05],
+        settings_list=[
+            AlgSetting(alg=alg, nruns=10, depth=4, alpha=alpha, alpha_invariant=alpha_invariant)
+            for alg, alpha, alpha_invariant in itr.product(['utigsp', 'igsp'], [1e-5], [1e-5])
+        ],
         dag_config=test_dag_config,
         sample_config=test_sample_config,
     )
