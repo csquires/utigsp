@@ -13,7 +13,8 @@ def str2tup(s):
 
 def empty_array(coords):
     dims = list(sorted(coords.keys()))
-    data = np.zeros([len(v) for k, v in sorted(coords.items(), key=op.itemgetter(0))])
+    data = np.empty([len(v) for k, v in sorted(coords.items(), key=op.itemgetter(0))])
+    data[:] = np.nan
     return xr.DataArray(data=data, dims=dims, coords=coords)
 
 
