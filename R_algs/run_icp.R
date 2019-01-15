@@ -1,8 +1,8 @@
-suppressMessages(library(pcalg))
+suppressMessages(library('InvariantCausalPrediction'))
 
 # === PARSE COMMAND LINE ARGUMENTS
 args = commandArgs(trailingOnly=TRUE)
-lambda = as.numeric(args[1])
+alpha = args[1]
 sample_path = args[2]
 
 # === LOAD DATA INTO A MATRIX AND A VECTOR SPECIFYING THE EXPERIMENT INDEX
@@ -24,12 +24,8 @@ for (file in list.files(iv_sample_folder)) {
     i = i + 1
 }
 
-# === ESTIMATE WITH GIES
-gies_score_fn <- new("GaussL0penIntScore", all_data, setting2targets, all_settings, lambda=lambda*.05*log(nrow(all_data))) # BIC score
-gies.fit <- gies(gies_score_fn)
-weights = gies.fit$repr$weight.mat()
-
-# === SAVE
-csv_name = paste(sample_path, '/estimates/gies/lambda=', formatC(lambda, format='e', digits=2),'.txt', sep='')
-write.table(weights, file=csv_name, row.names=FALSE, col.names=FALSE)
-
+# === FOR EACH NODE, FIND PARENTS
+for (node in 1:ncol(all_data)) {
+    res <- ICP(all_data[,node], all_data[,-node], all_settings)
+    print(res)
+}

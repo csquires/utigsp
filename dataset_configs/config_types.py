@@ -16,11 +16,11 @@ from functools import partial
 import causaldag as cd
 from causaldag import ScalingIntervention, SoftInterventionalDistribution
 from causaldag.inference.structural import unknown_target_igsp, igsp
-from causaldag.utils.ci_tests import kci_invariance_test, gauss_ci_test
+from causaldag.utils.ci_tests import hsic_invariance_test, gauss_ci_test
 
 np.random.seed(1729)
 random.seed(1729)
-kci_no_regress = partial(kci_invariance_test, regress=False)
+# kci_no_regress = partial(kci_invariance_test, regress=False)
 
 
 @dataclass(frozen=True)
@@ -85,17 +85,14 @@ class GIESSetting:
 
 @dataclass(frozen=True)
 class ICPSetting:
-    nruns: int
-    depth: int
     alpha: float
-    alpha_invariant: float
 
     @property
     def alg(self):
         return 'icp'
 
     def __str__(self):
-        return 'nruns=%d,depth=%d,alpha=%.2e,alpha_inv=%.2e' % (self.nruns, self.depth, self.alpha, self.alpha_invariant)
+        return 'alpha=%.2e' % self.alpha
 
 
 AlgSetting = NewType('AlgSetting', Union[IGSPSetting, UTIGSPSetting, GIESSetting, ICPSetting])
@@ -154,7 +151,6 @@ class DagConfig:
 
 @dataclass
 class SampleConfig:
-    dataset_name: str
     settings_list: List[SampleSetting]
     dag_config: DagConfig
     intervention: SoftInterventionalDistribution
@@ -183,7 +179,7 @@ class SampleConfig:
                 for ss in self.settings_list:
                     # === RANDOMLY PICK INTERVENTION NODES AND WHICH ARE KNOWN
                     nknown, n_unknown = ss.ntargets
-                    known_iv_nodes_list = random.sample(list(itr.permutations(nodes_list, nknown)), ss.nsettings)
+                    known_iv_nodes_list = random.sample(list(itr.combinations(nodes_list, nknown)), ss.nsettings)
                     unknown_iv_nodes_list = [
                         random.sample(set(nodes_list) - set(known_iv_nodes), n_unknown)
                         for known_iv_nodes in known_iv_nodes_list
@@ -269,7 +265,7 @@ def _run_alg_graph(tup):
                     suffstat,
                     nnodes,
                     gauss_ci_test,
-                    kci_invariance_test,
+                    hsic_invariance_test,
                     alpha=alg_setting.alpha,
                     alpha_invariance=alg_setting.alpha_invariant,
                     depth=alg_setting.depth,
@@ -281,7 +277,7 @@ def _run_alg_graph(tup):
                     suffstat,
                     nnodes,
                     gauss_ci_test,
-                    kci_invariance_test,
+                    hsic_invariance_test,
                     alpha=alg_setting.alpha,
                     alpha_invariance=alg_setting.alpha_invariant,
                     depth=alg_setting.depth,
@@ -305,7 +301,6 @@ def _run_alg_graph(tup):
 
 @dataclass
 class AlgConfig:
-    dataset_name: str
     settings_list: List[AlgSetting]
     dag_config: DagConfig
     sample_config: SampleConfig

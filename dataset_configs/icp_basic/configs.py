@@ -1,9 +1,9 @@
 from dataset_configs.config_types import DagConfig, SampleConfig, AlgConfig, DagSetting, SampleSetting
-from dataset_configs.config_types import UTIGSPSetting, IGSPSetting, GIESSetting
+from dataset_configs.config_types import ICPSetting
 from causaldag import ScalingIntervention
 import itertools as itr
 
-DATASET_NAME = 'fig1'
+DATASET_NAME = 'icp_basic'
 dag_config = DagConfig(
     dataset_name=DATASET_NAME,
     nnodes=10,
@@ -13,26 +13,18 @@ dag_config = DagConfig(
 sample_config = SampleConfig(
     settings_list=[
         SampleSetting(nsamples=nsamples, ntargets=ntargets, nsettings=nsettings)
-        for nsamples, ntargets, nsettings in itr.product([50, 100, 150, 200, 300], [(3, 0), (2, 1), (1, 2)], [3])
+        for nsamples, ntargets, nsettings in itr.product([100, 200, 300, 400], [(1, 0)], [10])
     ],
     intervention=ScalingIntervention(.1),
     dag_config=dag_config
 )
 
-igsp_settings = [
-    IGSPSetting(nruns=10, depth=4, alpha=alpha, alpha_invariant=alpha_invariant)
-    for alpha, alpha_invariant in itr.product([1e-5], [.1])
-]
-utigsp_settings = [
-    UTIGSPSetting(nruns=10, depth=4, alpha=alpha, alpha_invariant=alpha_invariant)
-    for alpha, alpha_invariant in itr.product([1e-5], [.1])
-]
-gies_settings = [
-    GIESSetting(lambda_)
-    for lambda_ in [50, 100]
+icp_settings = [
+    ICPSetting(alpha=alpha)
+    for alpha in [1e-2, 5e-2]
 ]
 alg_config = AlgConfig(
-    settings_list=igsp_settings+utigsp_settings+gies_settings,
+    settings_list=icp_settings,
     dag_config=dag_config,
     sample_config=sample_config,
 )

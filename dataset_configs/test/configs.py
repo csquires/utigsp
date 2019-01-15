@@ -10,7 +10,6 @@ dag_config = DagConfig(
     ngraphs=30
 )
 sample_config = SampleConfig(
-    dataset_name='test',
     settings_list=[
         SampleSetting(nsamples=nsamples, ntargets=ntargets, nsettings=nsettings)
         for nsamples, ntargets, nsettings in itr.product([100, 200, 300], [(1, 2)], [3, 5])
@@ -32,15 +31,14 @@ gies_settings = [
     for lambda_ in [50, 100, 1000]
 ]
 alg_config = AlgConfig(
-    dataset_name='test',
     settings_list=igsp_settings+gies_settings+utigsp_settings,
     dag_config=dag_config,
     sample_config=sample_config,
 )
 
 if __name__ == '__main__':
-    # dag_config.save_graphs()
-    # dags = dag_config.load_graphs()
-    # sample_config._save_samples()
+    dag_config.save_graphs()
+    dags = dag_config.load_graphs()
+    sample_config._save_samples()
     results = alg_config.run_alg()
 

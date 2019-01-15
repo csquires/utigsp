@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+Rscript R_install.R
 python3 -m venv venv
 source venv/bin/activate
 pip3 install ipykernel
