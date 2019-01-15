@@ -8,14 +8,14 @@ dag_config = DagConfig(
     dataset_name=DATASET_NAME,
     nnodes=20,
     settings_list=[DagSetting(nneighbors=1.5)],
-    ngraphs=30
+    ngraphs=100
 )
 sample_config = SampleConfig(
     settings_list=[
         SampleSetting(nsamples=nsamples, ntargets=ntargets, nsettings=nsettings)
-        for nsamples, ntargets, nsettings in itr.product([100, 200, 300, 400, 1000], [(1, 0)], [20])
+        for nsamples, ntargets, nsettings in itr.product([100, 200, 300], [(1, 0)], [20])
     ],
-    intervention=ScalingIntervention(.1),
+    intervention=ScalingIntervention(0),
     dag_config=dag_config
 )
 

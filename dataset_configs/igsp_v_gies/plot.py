@@ -22,7 +22,8 @@ percent_consistent_gies = (shd_array_gies == 0).mean(dim='dag')
 os.makedirs(os.path.join(FIGURES_FOLDER, DATASET_NAME), exist_ok=True)
 # ==== PLOT MEAN SHD ===
 plt.clf()
-plt.plot(mean_shd_igsp.nsamples, mean_shd_igsp.squeeze(), label='IGSP')
+for alpha in mean_shd_igsp.coords['alpha_invariant'].values:
+    plt.plot(mean_shd_igsp.nsamples, mean_shd_igsp.sel(alpha_invariant=alpha).squeeze(), label=r'IGSP $\alpha=%s$' % alpha)
 for lambda_ in mean_shd_gies.coords['lambda_'].values:
     plt.plot(mean_shd_gies.nsamples, mean_shd_gies.sel(lambda_=lambda_).squeeze(), label='GIES $\lambda$=%s' % lambda_)
 plt.legend()
@@ -33,13 +34,13 @@ plt.ylabel('Average SHD')
 plt.savefig(os.path.join(FIGURES_FOLDER, DATASET_NAME, 'mean_shd.png'))
 
 # ==== PLOT PERCENT CONSISTENT ===
-plt.clf()
-plt.plot(percent_consistent_igsp.nsamples, percent_consistent_igsp.squeeze(), label='IGSP')
-for lambda_ in mean_shd_gies.coords['lambda_'].values:
-    plt.plot(percent_consistent_gies.nsamples, percent_consistent_gies.sel(lambda_=lambda_).squeeze(), label='GIES $\lambda$=%s' % lambda_)
-plt.legend()
-# plt.xticks(mean_shd_igsp.nsamples)
-plt.xlabel('Number of intervention settings')
-plt.ylabel('Proportion correctly estimated')
-# plt.title(utils.make_title(dag_config, sample_config, alg_config, nsamples=False))
-plt.savefig(os.path.join(FIGURES_FOLDER, DATASET_NAME, 'percent_consistent.png'))
+# plt.clf()
+# plt.plot(percent_consistent_igsp.nsamples, percent_consistent_igsp.squeeze(), label='IGSP')
+# for lambda_ in mean_shd_gies.coords['lambda_'].values:
+#     plt.plot(percent_consistent_gies.nsamples, percent_consistent_gies.sel(lambda_=lambda_).squeeze(), label='GIES $\lambda$=%s' % lambda_)
+# plt.legend()
+# # plt.xticks(mean_shd_igsp.nsamples)
+# plt.xlabel('Number of intervention settings')
+# plt.ylabel('Proportion correctly estimated')
+# # plt.title(utils.make_title(dag_config, sample_config, alg_config, nsamples=False))
+# plt.savefig(os.path.join(FIGURES_FOLDER, DATASET_NAME, 'percent_consistent.png'))

@@ -14,12 +14,12 @@ import multiprocessing
 from functools import partial
 
 import causaldag as cd
-from causaldag import ScalingIntervention, SoftInterventionalDistribution
+from causaldag import ScalingIntervention, SoftInterventionalDistribution, PerfectInterventionalDistribution
 from causaldag.inference.structural import unknown_target_igsp, igsp
 from causaldag.utils.ci_tests import hsic_invariance_test, gauss_ci_test
 
-np.random.seed(1729)
-random.seed(1729)
+np.random.seed(1728)
+random.seed(1728)
 # kci_no_regress = partial(kci_invariance_test, regress=False)
 
 
@@ -196,7 +196,10 @@ class SampleConfig:
                     np.savetxt(os.path.join(sample_folder, 'observational.txt'), obs_samples)
                     for known_iv_nodes, unknown_iv_nodes in zip(known_iv_nodes_list, unknown_iv_nodes_list):
                         interventions = {iv_node: self.intervention for iv_node in list(known_iv_nodes) + unknown_iv_nodes}
-                        samples = g.sample_interventional_soft(interventions, ss.nsamples)
+                        if isinstance(self.intervention, PerfectInterventionalDistribution):
+                            samples = g.sample_interventional_perfect(interventions, ss.nsamples)
+                        else:
+                            samples = g.sample_interventional_soft(interventions, ss.nsamples)
                         samples_dict[frozenset(known_iv_nodes)] = samples
                         known_iv_str = ','.join(map(str, known_iv_nodes))
                         unknown_iv_str = ','.join(map(str, unknown_iv_nodes))

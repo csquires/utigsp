@@ -21,7 +21,7 @@ sample_config = SampleConfig(
 
 igsp_settings = [
     IGSPSetting(nruns=10, depth=4, alpha=alpha, alpha_invariant=alpha_invariant)
-    for alpha, alpha_invariant in itr.product([1e-5], [1e-5])
+    for alpha, alpha_invariant in itr.product([1e-5], [1e-5, 1e-3, 1e-1])
 ]
 gies_settings = [
     GIESSetting(lambda_)
