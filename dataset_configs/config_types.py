@@ -293,7 +293,8 @@ def _run_alg_graph(tup):
                 )
             elif isinstance(alg_setting, ICPSetting):
                 est_dag = run_icp(
-                    sample_folder
+                    sample_folder,
+                    alpha=alg_setting.alpha
                 )
             else:
                 raise ValueError('alg must be one of utigsp, igsp, icp, or gies')
