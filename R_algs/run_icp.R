@@ -26,6 +26,6 @@ for (file in list.files(iv_sample_folder)) {
 
 # === FOR EACH NODE, FIND PARENTS
 for (node in 1:ncol(all_data)) {
-    res <- ICP(all_data[,node], all_data[,-node], all_settings)
+    res <- ICP(all_data[,-node], all_data[,node], all_settings)
     print(res)
 }
