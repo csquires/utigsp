@@ -4,6 +4,7 @@ import numpy as np
 from config import DATA_FOLDER
 import utils
 from dataclasses import asdict
+from dataset_configs.config_types import ICPSetting
 
 
 def load_true_and_estimated(dag_config, setting_config, alg_config):
@@ -20,7 +21,10 @@ def load_true_and_estimated(dag_config, setting_config, alg_config):
                 sample_setting_folder = os.path.join(dag_folder, 'samples', str(sample_setting))
                 for alg_setting in alg_config.settings_list:
                     est_dag_filename = os.path.join(sample_setting_folder, 'estimates', alg_setting.alg, str(alg_setting) + '.txt')
-                    est_dag = cd.DAG.from_amat(np.loadtxt(est_dag_filename))
+                    if not isinstance(alg_setting, ICPSetting):
+                        est_dag = cd.DAG.from_amat(np.loadtxt(est_dag_filename))
+                    else:
+                        est_dag = np.loadtxt(est_dag_filename)
                     estimated_dags[sample_setting][alg_setting] = est_dag
 
             graphs.append({'true': true_dag, 'estimated': estimated_dags})
@@ -46,14 +50,18 @@ def get_shd_array(dag_config, sample_config, alg_config, dag_setting2graph):
             true_dag = dag_dict['true']
             for sample_setting, alg_setting2dag in dag_dict['estimated'].items():
                 for alg_setting, estimated_dag in alg_setting2dag.items():
-                    shd_array_dict[alg_setting.alg].loc[dict(
+                    loc = dict(
                         dag=dag_num,
                         nsamples=sample_setting.nsamples,
                         ntargets=utils.tup2str(sample_setting.ntargets),
                         nsettings=sample_setting.nsettings,
                         nneighbors=dag_setting.nneighbors,
                         **asdict(alg_setting)
-                    )] = true_dag.shd(estimated_dag)
+                    )
+                    if not isinstance(alg_setting, ICPSetting):
+                        shd_array_dict[alg_setting.alg].loc[loc] = true_dag.shd(estimated_dag)
+                    else:
+                        shd_array_dict[alg_setting.alg].loc[loc] = utils.shd_mat(true_dag.to_amat(), estimated_dag)
 
     return shd_array_dict
 

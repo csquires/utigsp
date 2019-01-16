@@ -3,17 +3,17 @@ from dataset_configs.config_types import UTIGSPSetting, IGSPSetting, GIESSetting
 from causaldag import GaussIntervention
 import itertools as itr
 
-DATASET_NAME = 'fig1'
+DATASET_NAME = 'fig1_large'
 dag_config = DagConfig(
     dataset_name=DATASET_NAME,
-    nnodes=5,
+    nnodes=10,
     settings_list=[DagSetting(nneighbors=1.5)],
-    ngraphs=30
+    ngraphs=50
 )
 sample_config = SampleConfig(
     settings_list=[
         SampleSetting(nsamples=nsamples, ntargets=ntargets, nsettings=nsettings)
-        for nsamples, ntargets, nsettings in itr.product([100, 300, 500], [(3, 0), (2, 1), (1, 2)], [1, 3])
+        for nsamples, ntargets, nsettings in itr.product([100, 300, 500], [(3, 0), (2, 1), (1, 2)], [3])
     ],
     intervention=GaussIntervention(1, .01),
     dag_config=dag_config

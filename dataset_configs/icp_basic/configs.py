@@ -6,14 +6,14 @@ import itertools as itr
 DATASET_NAME = 'icp_basic'
 dag_config = DagConfig(
     dataset_name=DATASET_NAME,
-    nnodes=10,
-    settings_list=[DagSetting(nneighbors=1.5)],
+    nnodes=3,
+    settings_list=[DagSetting(nneighbors=2)],
     ngraphs=30
 )
 sample_config = SampleConfig(
     settings_list=[
         SampleSetting(nsamples=nsamples, ntargets=ntargets, nsettings=nsettings)
-        for nsamples, ntargets, nsettings in itr.product([100, 200, 300, 400], [(1, 0)], [10])
+        for nsamples, ntargets, nsettings in itr.product([100], [(1, 0)], [3])
     ],
     intervention=ScalingIntervention(.1),
     dag_config=dag_config

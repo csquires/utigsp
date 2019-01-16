@@ -8,7 +8,7 @@ dag_config = DagConfig(
     dataset_name=DATASET_NAME,
     nnodes=4,
     settings_list=[DagSetting(nneighbors=1.5)],
-    ngraphs=10
+    ngraphs=50
 )
 sample_config = SampleConfig(
     settings_list=[

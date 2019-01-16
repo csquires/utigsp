@@ -4,3 +4,5 @@ data/
 *__pycache__/
 .DS_Store
 figures/
+real_data_analysis/sachs/estimated/
+tmp/

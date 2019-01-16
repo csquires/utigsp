@@ -11,6 +11,7 @@ from typing import List, Tuple, NewType, Union
 import itertools as itr
 from tqdm import tqdm
 import multiprocessing
+import shutil
 from functools import partial
 
 import causaldag as cd
@@ -187,6 +188,7 @@ class SampleConfig:
 
                     # === CREATE FOLDER TO SAVE SAMPLES
                     sample_folder = os.path.join(dag_folder, 'samples', str(ss))
+                    shutil.rmtree(sample_folder, ignore_errors=True)
                     iv_sample_folder = os.path.join(sample_folder, 'interventional')
                     os.makedirs(iv_sample_folder, exist_ok=True)
 

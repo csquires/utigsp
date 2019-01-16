@@ -36,3 +36,11 @@ def make_title(dag_config, sample_config, alg_config, nnodes=True, nneighbors=Tr
         pieces.append('nsettings=%s' % _list2str(sample_config.nsettings_list))
     return ';'.join(pieces)
 
+
+def shd_mat(mat1, mat2):
+    skel1 = (mat1 + mat1.T).astype(bool).astype(int)
+    skel2 = (mat2 + mat2.T).astype(bool).astype(int)
+    skel_diff = np.sum(np.abs(skel1 - skel2))
+    wrong_orientation = np.sum(np.abs(mat1 - mat2) + np.abs(mat1 - mat2).T > 0)/2
+    return skel_diff + wrong_orientation
+
