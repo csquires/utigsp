@@ -4,7 +4,7 @@ import seaborn as sns
 from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
 
-ALGS2COLORS = dict(zip(['utigsp', 'igsp', 'gies', ''], sns.color_palette()))
+ALGS2COLORS = dict(zip(['utigsp', 'igsp', 'gies', 'igsp_r'], sns.color_palette()))
 LINESTYLES = ['-', '--', 'dotted']
 ALG_HANDLES = [Patch(color=c, label=alg) for alg, c in ALGS2COLORS.items()]
 

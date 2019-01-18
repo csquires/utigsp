@@ -7,6 +7,7 @@ from causaldag.utils.ci_tests import hsic_test, gauss_ci_test, hsic_invariance_t
 import numpy as np
 from tqdm import tqdm
 from R_algs.wrappers import run_gies
+import multiprocessing
 
 sample_dict = {}
 ivs = []
@@ -22,39 +23,76 @@ obs_samples = sample_dict[frozenset()]
 suffstat = dict(C=np.corrcoef(obs_samples, rowvar=False), n=obs_samples.shape[0])
 
 
-for iv in ivs:
+def run_algs(iv):
     iv_estimated_folder = os.path.join(ESTIMATED_FOLDER, 'exclude_%s' % iv)
-    os.makedirs(iv_estimated_folder)
+    os.makedirs(iv_estimated_folder, exist_ok=True)
     sample_dict_exclude = {k: v for k, v in sample_dict.items() if k != frozenset({iv})}
 
-    # === RUN IGSP WITH HSIC
-    for alpha in tqdm([1e-5, 1e-4, 1e-3, 1e-2, 5e-2, 1e-1, 3e-1, 5e-1]):
-        alpha_invariance = 1e-5
-        filename = os.path.join(iv_estimated_folder, 'igsp_hsic_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_invariance))
-        if not os.path.exists(filename):
-            est_dag = igsp(
-                sample_dict,
-                sample_dict[frozenset()],
-                nnodes,
-                hsic_test,
-                hsic_invariance_test,
-                alpha=alpha,
-                nruns=10,
-                alpha_invariance=alpha_invariance
-            )
-            np.savetxt(filename, est_dag.to_amat())
+    # # === RUN IGSP WITH HSIC
+    # for alpha in tqdm([1e-5, 1e-4, 1e-3, 1e-2, 5e-2, 1e-1, 3e-1, 5e-1]):
+    #     alpha_invariance = 1e-5
+    #     filename = os.path.join(iv_estimated_folder,
+    #                             'igsp_hsic_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_invariance))
+    #     if not os.path.exists(filename):
+    #         est_dag = igsp(
+    #             sample_dict_exclude,
+    #             sample_dict[frozenset()],
+    #             nnodes,
+    #             hsic_test,
+    #             hsic_invariance_test,
+    #             alpha=alpha,
+    #             nruns=10,
+    #             alpha_invariance=alpha_invariance,
+    #         )
+    #         np.savetxt(filename, est_dag.to_amat())
 
-    # === RUN UTIGSP WITH HSIC
+    # === RUN IGSP WITH GAUSS CI
     for alpha in tqdm([1e-5, 1e-4, 1e-3, 1e-2, 5e-2, 1e-1, 3e-1, 5e-1]):
         alpha_invariance = 1e-5
         filename = os.path.join(iv_estimated_folder,
-                                'utigsp_hsic_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_invariance))
+                                'igsp_gauss_ci_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_invariance))
+        if not os.path.exists(filename):
+            est_dag = igsp(
+                sample_dict_exclude,
+                suffstat,
+                nnodes,
+                gauss_ci_test,
+                hsic_invariance_test,
+                alpha=alpha,
+                nruns=10,
+                alpha_invariance=alpha_invariance,
+            )
+            np.savetxt(filename, est_dag.to_amat())
+
+    # # === RUN UTIGSP WITH HSIC
+    # for alpha in tqdm([1e-5, 1e-4, 1e-3, 1e-2, 5e-2, 1e-1, 3e-1, 5e-1]):
+    #     alpha_invariance = 1e-5
+    #     filename = os.path.join(iv_estimated_folder,
+    #                             'utigsp_hsic_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_invariance))
+    #     if not os.path.exists(filename):
+    #         est_dag = unknown_target_igsp(
+    #             sample_dict_exclude,
+    #             sample_dict[frozenset()],
+    #             nnodes,
+    #             hsic_test,
+    #             hsic_invariance_test,
+    #             alpha=alpha,
+    #             nruns=10,
+    #             alpha_invariance=alpha_invariance
+    #         )
+    #         np.savetxt(filename, est_dag.to_amat())
+
+    # === RUN UTIGSP WITH GAUSS CI
+    for alpha in tqdm([1e-5, 1e-4, 1e-3, 1e-2, 5e-2, 1e-1, 3e-1, 5e-1]):
+        alpha_invariance = 1e-5
+        filename = os.path.join(iv_estimated_folder,
+                                'utigsp_gauss_ci_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_invariance))
         if not os.path.exists(filename):
             est_dag = unknown_target_igsp(
-                sample_dict,
-                sample_dict[frozenset()],
+                sample_dict_exclude,
+                suffstat,
                 nnodes,
-                hsic_test,
+                gauss_ci_test,
                 hsic_invariance_test,
                 alpha=alpha,
                 nruns=10,
@@ -62,9 +100,8 @@ for iv in ivs:
             )
             np.savetxt(filename, est_dag.to_amat())
 
-
     # === SAVE DATA FOR GIES
-    # sample_folder = os.path.join(PROJECT_FOLDER, 'tmp_dixit')
+    # sample_folder = os.path.join(PROJECT_FOLDER, 'tmp_dixit_iv=%s' % iv)
     # iv_sample_folder = os.path.join(sample_folder, 'interventional')
     # os.makedirs(iv_sample_folder, exist_ok=True)
     # np.savetxt(os.path.join(sample_folder, 'observational.txt'), obs_samples)
@@ -82,4 +119,8 @@ for iv in ivs:
     #             lambda_
     #         )
     #         np.savetxt(filename, amat)
+
+
+with multiprocessing.Pool(multiprocessing.cpu_count() - 1) as p:
+    p.map(run_algs, ivs)
 

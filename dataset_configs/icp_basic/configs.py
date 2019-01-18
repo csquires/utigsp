@@ -21,7 +21,7 @@ sample_config = SampleConfig(
 
 icp_settings = [
     ICPSetting(alpha=alpha)
-    for alpha in [1]
+    for alpha in [1e-3, 1e-2, 5e-2, 1e-1, 3e-1, 5e-1]
 ]
 alg_config = AlgConfig(
     settings_list=icp_settings,

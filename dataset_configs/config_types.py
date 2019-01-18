@@ -1,6 +1,6 @@
 from config import DATA_FOLDER
 from utils import tup2str
-from R_algs.wrappers import run_gies, run_icp
+from R_algs.wrappers import run_gies, run_icp, run_igsp_multi
 
 import os
 import random
@@ -58,6 +58,33 @@ class IGSPSetting:
 
 
 @dataclass(frozen=True)
+class IGSP_Pool_Setting:
+    nruns: int
+    depth: int
+    alpha: float
+    alpha_invariant: float
+
+    @property
+    def alg(self):
+        return 'igsp_pool'
+
+    def __str__(self):
+            return 'nruns=%d,depth=%d,alpha=%.2e,alpha_inv=%.2e' % (self.nruns, self.depth, self.alpha, self.alpha_invariant)
+
+
+@dataclass(frozen=True)
+class IGSP_R_Setting:
+    alpha: float
+
+    @property
+    def alg(self):
+        return 'igsp_r_multi'
+
+    def __str__(self):
+            return 'alpha=%.2e' % self.alpha
+
+
+@dataclass(frozen=True)
 class UTIGSPSetting:
     nruns: int
     depth: int
@@ -67,6 +94,21 @@ class UTIGSPSetting:
     @property
     def alg(self):
         return 'utigsp'
+
+    def __str__(self):
+            return 'nruns=%d,depth=%d,alpha=%.2e,alpha_inv=%.2e' % (self.nruns, self.depth, self.alpha, self.alpha_invariant)
+
+
+@dataclass(frozen=True)
+class UTIGSP_Pool_Setting:
+    nruns: int
+    depth: int
+    alpha: float
+    alpha_invariant: float
+
+    @property
+    def alg(self):
+        return 'utigsp_pool'
 
     def __str__(self):
             return 'nruns=%d,depth=%d,alpha=%.2e,alpha_inv=%.2e' % (self.nruns, self.depth, self.alpha, self.alpha_invariant)
@@ -96,7 +138,7 @@ class ICPSetting:
         return 'alpha=%.2e' % self.alpha
 
 
-AlgSetting = NewType('AlgSetting', Union[IGSPSetting, UTIGSPSetting, GIESSetting, ICPSetting])
+AlgSetting = NewType('AlgSetting', Union[IGSPSetting, UTIGSPSetting, GIESSetting, ICPSetting, IGSP_R_Setting])
 
 
 @dataclass
@@ -258,9 +300,12 @@ def _run_alg_graph(tup):
             samples_dict[known_ivs] = np.loadtxt(os.path.join(iv_sample_folder, fn))
 
         # === BUILD SUFFSTAT
+        data_all = np.concatenate(tuple(samples_dict.values()), axis=0)
         corr = np.corrcoef(samples_dict[frozenset()], rowvar=False)
+        corr_all = np.corrcoef(data_all, rowvar=False)
         nnodes = samples_dict[frozenset()].shape[1]
         suffstat = dict(C=corr, n=ss.nsamples)
+        suffstat_all = dict(C=corr_all, n=ss.nsamples*(1+ss.nsettings))
 
         alg_setting2results = {}
         for alg_setting in alg_settings:
@@ -269,6 +314,18 @@ def _run_alg_graph(tup):
                 est_dag = unknown_target_igsp(
                     samples_dict,
                     suffstat,
+                    nnodes,
+                    gauss_ci_test,
+                    hsic_invariance_test,
+                    alpha=alg_setting.alpha,
+                    alpha_invariance=alg_setting.alpha_invariant,
+                    depth=alg_setting.depth,
+                    nruns=alg_setting.nruns
+                )
+            if isinstance(alg_setting, UTIGSP_Pool_Setting):
+                est_dag = unknown_target_igsp(
+                    samples_dict,
+                    suffstat_all,
                     nnodes,
                     gauss_ci_test,
                     hsic_invariance_test,
@@ -289,6 +346,18 @@ def _run_alg_graph(tup):
                     depth=alg_setting.depth,
                     nruns=alg_setting.nruns
                 )
+            elif isinstance(alg_setting, IGSP_Pool_Setting):
+                est_dag = igsp(
+                    samples_dict,
+                    suffstat_all,
+                    nnodes,
+                    gauss_ci_test,
+                    hsic_invariance_test,
+                    alpha=alg_setting.alpha,
+                    alpha_invariance=alg_setting.alpha_invariant,
+                    depth=alg_setting.depth,
+                    nruns=alg_setting.nruns
+                )
             elif isinstance(alg_setting, GIESSetting):
                 est_dag = run_gies(
                     sample_folder,
@@ -296,6 +365,11 @@ def _run_alg_graph(tup):
                 )
             elif isinstance(alg_setting, ICPSetting):
                 est_dag = run_icp(
+                    sample_folder,
+                    alpha=alg_setting.alpha
+                )
+            elif isinstance(alg_setting, IGSP_R_Setting):
+                est_dag = run_igsp_multi(
                     sample_folder,
                     alpha=alg_setting.alpha
                 )
@@ -320,9 +394,11 @@ class AlgConfig:
                 d[setting.alg]['depth'].add(setting.depth)
                 d[setting.alg]['alpha'].add(setting.alpha)
                 d[setting.alg]['alpha_invariant'].add(setting.alpha_invariant)
-            if setting.alg == 'gies':
+            elif setting.alg == 'gies':
                 d[setting.alg]['lambda_'].add(setting.lambda_)
-            if setting.alg == 'icp':
+            elif setting.alg == 'icp':
+                d[setting.alg]['alpha'].add(setting.alpha)
+            elif setting.alg == 'igsp_r':
                 d[setting.alg]['alpha'].add(setting.alpha)
         d = {alg: {param: list(vals) for param, vals in settings.items()} for alg, settings in d.items()}
         return d
@@ -340,7 +416,7 @@ class AlgConfig:
             for i, sample_setting2alg_setting2results in enumerate(graph2sample_setting2alg_setting2results):
                 for sample_setting, alg_setting2results in sample_setting2alg_setting2results.items():
                     for alg_setting, dag in alg_setting2results.items():
-                        if not isinstance(alg_setting, (GIESSetting, ICPSetting)):  # THESE HAVE ALREADY BEEN SAVED BY R
+                        if not isinstance(alg_setting, (GIESSetting, ICPSetting, IGSP_R_Setting)):  # THESE HAVE ALREADY BEEN SAVED BY R
                             filename = os.path.join(
                                 self.dag_config.setting2dag_folders[dag_setting][i],
                                 'samples',

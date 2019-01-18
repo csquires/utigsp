@@ -1,24 +1,23 @@
-library(pcalg)
-library(kpcalg)
-library(graph)
-library(sets)
+suppressMessages(library(pcalg))
+suppressMessages(library(kpcalg))
+suppressMessages(library(graph))
+suppressMessages(library(sets))
 
 set.seed(1)
-
 
 #input to Greedy SP with random restarts: mat -- precision matrix, order -- initial permutation
 sp.restart.alg <- function(suffstat, intdata, inttargets, alpha){
 	#set up the initial parameters for all functions
 	p <- ncol(suffstat$C)
-	intervention_col<-which( colnames(intdata[[1]])=="intervention_index" )	
+	intervention_col<-which( colnames(intdata[[1]])=="intervention_index" )
 	invariance_cache=matrix(data=NA_integer_,p, p)
 
 	#checks f^(I)(x_b) invariant to I (I_(a\b) U nullset) conditioned on a subset of Union( I_{a\b}\a)
-	checkInvariance <- function(a, b, a_no_b) {
+	checkInvariance1 <- function(a, b, a_no_b) {
 		#add observational data
-		if(!is.na(invariance_cache[[a, b]])) {
-			return(invariance_cache[[a, b]])
-		}
+		#if(!is.na(invariance_cache[[a, b]])) {
+		#	return(invariance_cache[[a, b]])
+		#}
 		k <- c(1, a_no_b)
 
 		#get rows for k
@@ -26,28 +25,63 @@ sp.restart.alg <- function(suffstat, intdata, inttargets, alpha){
 		#now combine the intervention data vertically for CI testing
 		kdata_binded<-do.call("rbind", kdata)
 
-		#union of a without b without a. (s <- set to condition on)
-		v<-setdiff(lapply(a_no_b, function(t) inttargets[[t]]), a)
-		v_subsets<- 2^as.set(v) #powerset
-
-		for (s in v_subsets) {
-			if (kernelCItest(b, intervention_col, s, suffStat = list(data=kdata_binded, ic.method="hsic.gamma")) > alpha) {
-				invariance_cache[[a, b]] <<-T
-				return(T)
-			}
+		if (kernelCItest(b, intervention_col, NULL, suffStat = list(data=kdata_binded, ic.method="hsic.gamma")) > alpha){
+		  return(T)
 		}
-		invariance_cache[[a, b]] <<-F
+
 		return(F)
 	}
 
-	#I-contradicting edges
-	contCItest <- function(i, j){
-		k1 <- which(sapply(inttargets, function(a) i %in% a))
-		k2 <- which(sapply(inttargets, function(a) j %in% a))
-		i_no_j <- setdiff(k1, k2)
-		j_no_i <- setdiff(k2, k1)
+	checkInvariance2 <- function(a, b, a_no_b, ne_b) {
+	  #add observational data
+	  #if(!is.na(invariance_cache[[a, b]])) {
+	 #   return(invariance_cache[[a, b]])
+	  #}
+	  k <- c(1, a_no_b)
 
-		if  ( (length(i_no_j)>0 && checkInvariance(i, j, i_no_j)) || (length(j_no_i)>0 && !checkInvariance(j, i, j_no_i)) ){
+	  #get rows for k
+	  kdata<- lapply(k, function(t) intdata[[t]])
+	  #now combine the intervention data vertically for CI testing
+	  kdata_binded<-do.call("rbind", kdata)
+
+	  #union of a without b without a. (s <- set to condition on)
+	  #v<-setdiff(lapply(a_no_b, function(t) inttargets[[t]]), a)
+	  v_subsets<- 2^as.set(ne_b)
+
+	  for (s in v_subsets) {
+	    if (kernelCItest(b, intervention_col, sapply(s, function(a) a), suffStat = list(data=kdata_binded, ic.method="hsic.gamma")) > alpha) {
+	      return(T)
+	    }
+	  }
+	  return(F)
+	}
+
+	#I-contradicting edges
+	contCItest <- function(i, j, cur_dag){
+		int_only_i <- which(sapply(inttargets, function(a) i %in% a && length(a)==1))
+		int_only_j <- which(sapply(inttargets, function(a) j %in% a && length(a)==1))
+		int_i <- which(sapply(inttargets, function(a) i %in% a))
+		int_j <- which(sapply(inttargets, function(a) j %in% a))
+
+		if (length(int_only_i)>0){
+		  i_no_j <- int_only_i
+		  ne_j <- numeric(0)
+		} else {
+		  i_no_j <- setdiff(int_i, int_j)
+		  ne_j <- which(sapply(1:p, function(a) cur_dag[j,a] == 1 || cur_dag[a,j]==1))
+		  ne_j <- setdiff(ne_j, i)
+		}
+
+		if (length(int_only_j)>0){
+		  j_no_i <- int_only_j
+		  ne_i <- numeric(0)
+		} else {
+		  j_no_i <- setdiff(int_j, int_i)
+		  ne_i <- which(sapply(1:p, function(a) cur_dag[i,a] == 1 || cur_dag[a,i]==1))
+		  ne_i <- setdiff(ne_i, j)
+		}
+
+		if  ((length(i_no_j)>0 && checkInvariance2(i, j, i_no_j, ne_j)) || (length(j_no_i)>0 && !checkInvariance2(j, i, j_no_i, ne_i)) ){
 			return(T)
 		}
 
@@ -57,10 +91,24 @@ sp.restart.alg <- function(suffstat, intdata, inttargets, alpha){
 	#I-covered edges
 	#tests if a covered edge is NOT i-covered
 	icovtest <- function(i, j){
+		set_i = which(sapply(inttargets, function(a) i %in% a && length(a)==1))
+
 		k1 <- which(sapply(inttargets, function(a) i %in% a))
 		k2 <- which(sapply(inttargets, function(a) j %in% a))
-		i_no_j <- setdiff(k1, k2)
-		return (length(i_no_j)>0 && !checkInvariance(i, j, i_no_j))
+		j_no_i <- setdiff(k2, k1)
+
+	  # if fail condition 2
+		if (length(set_i) > 0 && !checkInvariance1(i,j,set_i)){
+		  return(T)
+		}
+	  # if fail condition 3
+	  if (length(j_no_i) > 0 && checkInvariance1(j,i,j_no_i)){
+	    return(T)
+	  }
+
+		return(F)
+	  #return(!condition_2 || !condition_3)
+		#return (length(set_i)>0 && !checkInvariance(i, j, set_i))
 	}
 
 	#get new dag based on edge flip
@@ -80,15 +128,18 @@ sp.restart.alg <- function(suffstat, intdata, inttargets, alpha){
 		dag[edge[1], edge[2]] <- 0
 		dag[edge[2], edge[1]] <- 1
 		contdag[edge[1], edge[2]] <- 0
-		contdag[edge[2], edge[1]] <- contCItest(edge[2], edge[1])
 
 		#parent set of the flipped components
 		if(length(par) != 0){
 			dag[par, edge[1]] <- sapply(1:length(par), function(i) gaussCItest(par[i], edge[1], c(par[-i], edge[2]), suffstat) < alpha)
 			dag[par, edge[2]] <- sapply(1:length(par), function(i) gaussCItest(par[i], edge[2], par[-i], suffstat) < alpha)
-			contdag[par, edge[1]] <- sapply(1:length(par), function(i) if(dag[par[i], edge[1]] != 0) contCItest(par[i], edge[1]) else 0)
-			contdag[par, edge[2]] <- sapply(1:length(par), function(i) if(dag[par[i], edge[2]] != 0) contCItest(par[i], edge[2]) else 0)
 		}
+		#parent set of the flipped components
+		if(length(par) != 0){
+		  contdag[par, edge[1]] <- sapply(1:length(par), function(i) if(dag[par[i], edge[1]] != 0) contCItest(par[i], edge[1], dag) else 0)
+		  contdag[par, edge[2]] <- sapply(1:length(par), function(i) if(dag[par[i], edge[2]] != 0) contCItest(par[i], edge[2], dag) else 0)
+		}
+		contdag[edge[2], edge[1]] <- contCItest(edge[2], edge[1], dag)
 		#get updates of the number of contradicting edges
 		return(list(dag=dag, contdag=contdag, order=order))
 	}
@@ -102,7 +153,7 @@ sp.restart.alg <- function(suffstat, intdata, inttargets, alpha){
 	#get the initial dag
 	init.contdag <- function(dag, order){
 		revorder <- sapply(1:p, function(t) which(order==t))
-		return(sapply(1:p, function(j) sapply(1:p, function(i) if(dag[i, j] != 0) contCItest(i, j) else 0)))
+		return(sapply(1:p, function(j) sapply(1:p, function(i) if(dag[i, j] != 0) contCItest(i, j, dag) else 0)))
 	}
 
 	#the stack for visited orders
@@ -148,7 +199,6 @@ sp.restart.alg <- function(suffstat, intdata, inttargets, alpha){
 				vdags <- head(vdags, -1)
 			}
 		}
-		# print(order)
 		return(mindag)
 	}
 
@@ -169,6 +219,7 @@ sample_path = args[2]
 obs_sample_path = paste(sample_path, '/observational.txt', sep='')
 data.list = list()
 t.list = list()
+t.list[[1]] = integer(0)
 data.list[[1]] = read.table(obs_sample_path)
 iv_sample_folder = paste(sample_path, '/interventional/', sep='')
 i = 2
@@ -181,6 +232,7 @@ for (file in list.files(iv_sample_folder)) {
     t.list[[i]] = known_ivs
     i = i + 1
 }
+print(t.list)
 method <- "hsic.gamma"
 
 #prepare for sufficient statistics and intervention targets
@@ -193,6 +245,5 @@ inttargets <- t.list[1:length(t.list)]
 
 
 grspdag <- sp.restart.alg(suffstat, intdata, inttargets, alpha)
-csv_name = paste(sample_path, '/estimates/igsp_r/alpha=', formatC(alpha, format='e', digits=2),'.txt', sep='')
+csv_name = paste(sample_path, '/estimates/igsp_r_multi/alpha=', formatC(alpha, format='e', digits=2),'.txt', sep='')
 write.table(grspdag, file=csv_name, row.names=FALSE, col.names=FALSE)
-

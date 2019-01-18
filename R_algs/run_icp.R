@@ -18,17 +18,23 @@ for (file in list.files(iv_sample_folder)) {
     i = i + 1
 }
 
-amat = matrix(0, 3, 3)
+nnodes = ncol(all_data)
+amat = matrix(0, nnodes, nnodes)
 # === FOR EACH NODE, FIND PARENTS
 for (node in 1:ncol(all_data)) {
     res <- ICP(all_data[,-node], all_data[,node], all_settings, alpha=alpha, showAcceptedSets=FALSE, showCompletion=FALSE)
+    print('==============================')
+    print(node)
+    print(res$acceptedSets)
     parent_ixs = Reduce(intersect, res$acceptedSets)
     other_nodes = 1:ncol(all_data)
     other_nodes = other_nodes[-node]
     parents = other_nodes[parent_ixs]
+    print(parents)
     amat[parents, node] = 1
 }
 
+print(amat)
 csv_name = paste(sample_path, '/estimates/icp/alpha=', formatC(alpha, format='e', digits=2),'.txt', sep='')
 write.table(amat, file=csv_name, row.names=FALSE, col.names=FALSE)
 
