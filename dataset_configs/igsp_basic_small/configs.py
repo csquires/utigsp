@@ -3,17 +3,17 @@ from dataset_configs.config_types import UTIGSPSetting, IGSPSetting, GIESSetting
 from causaldag import ScalingIntervention
 import itertools as itr
 
-DATASET_NAME = 'igsp_basic'
+DATASET_NAME = 'igsp_basic_small'
 dag_config = DagConfig(
     dataset_name=DATASET_NAME,
-    nnodes=20,
+    nnodes=10,
     settings_list=[DagSetting(nneighbors=1.5)],
     ngraphs=100
 )
 sample_config = SampleConfig(
     settings_list=[
         SampleSetting(nsamples=nsamples, ntargets=ntargets, nsettings=nsettings)
-        for nsamples, ntargets, nsettings in itr.product([100, 200, 300], [(1, 0)], [20])
+        for nsamples, ntargets, nsettings in itr.product([100, 200, 300], [(1, 0)], [10])
     ],
     intervention=ScalingIntervention(0, .2),
     dag_config=dag_config

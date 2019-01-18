@@ -14,7 +14,7 @@ import seaborn as sns
 sns.set()
 
 true_and_estimated = evaluate.load_true_and_estimated(dag_config, sample_config, alg_config)
-shd_array_dict = evaluate.get_shd_array(dag_config, sample_config, alg_config, true_and_estimated)
+shd_array_dict, imec_dict = evaluate.get_shd_array(dag_config, sample_config, alg_config, true_and_estimated)
 shd_array_igsp = shd_array_dict['igsp']
 shd_array_utigsp = shd_array_dict['utigsp']
 

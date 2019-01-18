@@ -10,8 +10,8 @@ import seaborn as sns
 sns.set()
 
 true_and_estimated = evaluate.load_true_and_estimated(dag_config, sample_config, alg_config)
-shd_array_dict = evaluate.get_shd_array(dag_config, sample_config, alg_config, true_and_estimated)
-shd_array_icp = shd_array_dict['icp']
+shd_array_dict, _ = evaluate.get_shd_array(dag_config, sample_config, alg_config, true_and_estimated)
+shd_array_icp = shd_array_dict['icp'].sel(nsettings=1)
 
 mean_shd_icp = shd_array_icp.mean(dim='dag')
 percent_consistent_icp = (shd_array_icp == 0).mean(dim='dag')

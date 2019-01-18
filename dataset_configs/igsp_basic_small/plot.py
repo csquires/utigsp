@@ -1,4 +1,4 @@
-from dataset_configs.igsp_basic.configs import dag_config, sample_config, alg_config, DATASET_NAME
+from dataset_configs.igsp_basic_small.configs import dag_config, sample_config, alg_config, DATASET_NAME
 from dataset_configs import evaluate
 from config import FIGURES_FOLDER
 import os

@@ -264,6 +264,7 @@ def _run_alg_graph(tup):
 
         alg_setting2results = {}
         for alg_setting in alg_settings:
+            print('running %s' % alg_setting)
             if isinstance(alg_setting, UTIGSPSetting):
                 est_dag = unknown_target_igsp(
                     samples_dict,
@@ -322,7 +323,7 @@ class AlgConfig:
             if setting.alg == 'gies':
                 d[setting.alg]['lambda_'].add(setting.lambda_)
             if setting.alg == 'icp':
-                raise NotImplementedError
+                d[setting.alg]['alpha'].add(setting.alpha)
         d = {alg: {param: list(vals) for param, vals in settings.items()} for alg, settings in d.items()}
         return d
 

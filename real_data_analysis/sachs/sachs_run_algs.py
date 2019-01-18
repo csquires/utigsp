@@ -18,7 +18,9 @@ for file in os.listdir(SACHS_DATA_FOLDER):
     ivs = frozenset({int(iv_str)}) if iv_str != '' else frozenset()
     sample_dict[ivs] = samples.values
 obs_samples = sample_dict[frozenset()]
+all_samples = np.concatenate(tuple(sample_dict.values()), axis=0)
 suffstat = dict(C=np.corrcoef(obs_samples, rowvar=False), n=obs_samples.shape[0])
+suffstat_all = dict(C=np.corrcoef(all_samples, rowvar=False), n=all_samples.shape[0])
 
 # === RUN UNKNOWN TARGET IGSP WITH GAUSS CI
 # for alpha in [1e-5, 1e-4, 1e-3, 1e-2, 5e-2, 1e-1]:
@@ -37,24 +39,27 @@ suffstat = dict(C=np.corrcoef(obs_samples, rowvar=False), n=obs_samples.shape[0]
 #         np.savetxt(filename, est_dag.to_amat())
 
 # === RUN UNKNOWN TARGET IGSP WITH HSIC
-# for alpha in [1e-5, 1e-4, 1e-3, 1e-2, 5e-2, 1e-1]:
-#     filename = os.path.join(ESTIMATED_FOLDER, 'utigsp_hsic_alpha=%.2e.txt' % alpha)
-#     if not os.path.exists(filename):
-#         est_dag = unknown_target_igsp(
-#             sample_dict,
-#             sample_dict[frozenset()],
-#             nnodes,
-#             hsic_test,
-#             hsic_invariance_test,
-#             alpha=alpha,
-#             nruns=10,
-#             alpha_invariance=alpha
-#         )
-#         np.savetxt(filename, est_dag.to_amat())
+for alpha in tqdm([1e-1, 5e-1]):
+    alpha_invariance = 1e-5
+    filename = os.path.join(ESTIMATED_FOLDER, 'utigsp_hsic_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_invariance))
+    if not os.path.exists(filename):
+        est_dag = unknown_target_igsp(
+            sample_dict,
+            sample_dict[frozenset()],
+            nnodes,
+            hsic_test,
+            hsic_invariance_test,
+            alpha=alpha,
+            nruns=10,
+            alpha_invariance=alpha_invariance,
+            verbose=True
+        )
+        np.savetxt(filename, est_dag.to_amat())
 
 # === RUN IGSP WITH GAUSS CI
 # for alpha in tqdm([1e-5, 1e-4, 1e-3, 1e-2, 5e-2, 1e-1, 3e-1, 5e-1]):
-#     filename = os.path.join(ESTIMATED_FOLDER, 'igsp_gauss_ci_alpha=%.2e.txt' % alpha)
+#     alpha_invariance = 1e-5
+#     filename = os.path.join(ESTIMATED_FOLDER, 'igsp_gauss_ci_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_invariance))
 #     if not os.path.exists(filename):
 #         est_dag = igsp(
 #             sample_dict,
@@ -64,25 +69,26 @@ suffstat = dict(C=np.corrcoef(obs_samples, rowvar=False), n=obs_samples.shape[0]
 #             hsic_invariance_test,
 #             alpha=alpha,
 #             nruns=10,
-#             alpha_invariance=1e-5
+#             alpha_invariance=alpha_invariance
 #         )
 #         np.savetxt(filename, est_dag.to_amat())
 
 # === RUN IGSP WITH HSIC
-for alpha in tqdm([1e-5, 1e-4, 1e-3, 1e-2, 5e-2, 1e-1, 3e-1, 5e-1]):
-    filename = os.path.join(ESTIMATED_FOLDER, 'igsp_hsic_alpha=%.2e.txt' % alpha)
-    if not os.path.exists(filename):
-        est_dag = igsp(
-            sample_dict,
-            sample_dict[frozenset()],
-            nnodes,
-            hsic_test,
-            hsic_invariance_test,
-            alpha=1e-5,
-            nruns=10,
-            alpha_invariance=alpha
-        )
-        np.savetxt(filename, est_dag.to_amat())
+# for alpha in tqdm([1e-5, 1e-4, 1e-3, 1e-2, 5e-2, 1e-1, 3e-1, 5e-1]):
+#     alpha_invariance = 1e-5
+#     filename = os.path.join(ESTIMATED_FOLDER, 'igsp_hsic_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_invariance))
+#     if not os.path.exists(filename):
+#         est_dag = igsp(
+#             sample_dict,
+#             sample_dict[frozenset()],
+#             nnodes,
+#             hsic_test,
+#             hsic_invariance_test,
+#             alpha=alpha,
+#             nruns=10,
+#             alpha_invariance=alpha_invariance
+#         )
+#         np.savetxt(filename, est_dag.to_amat())
 
 # === SAVE DATA FOR GIES
 sample_folder = os.path.join(PROJECT_FOLDER, 'tmp_sachs')
@@ -94,12 +100,12 @@ for iv_nodes, samples in sample_dict.items():
         iv_str = 'known_ivs=%s;unknown_ivs=.txt' % ','.join(map(str, iv_nodes))
         np.savetxt(os.path.join(iv_sample_folder, iv_str), samples)
 
-# === RUN GIES
-est_dags_gies = []
-for lambda_ in [500, 2000]:
-    filename = os.path.join(ESTIMATED_FOLDER, 'gies_lambda=%.2e.txt' % lambda_)
-    if not os.path.exists(filename):
-        amat = run_gies(sample_folder, lambda_)
-        np.savetxt(filename, amat)
-
-shutil.rmtree(sample_folder)
+# # === RUN GIES
+# est_dags_gies = []
+# for lambda_ in [500, 2000]:
+#     filename = os.path.join(ESTIMATED_FOLDER, 'gies_lambda=%.2e.txt' % lambda_)
+#     if not os.path.exists(filename):
+#         amat = run_gies(sample_folder, lambda_)
+#         np.savetxt(filename, amat)
+#
+# shutil.rmtree(sample_folder)
