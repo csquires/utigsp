@@ -22,39 +22,47 @@ all_samples = np.concatenate(tuple(sample_dict.values()), axis=0)
 suffstat = dict(C=np.corrcoef(obs_samples, rowvar=False), n=obs_samples.shape[0])
 suffstat_all = dict(C=np.corrcoef(all_samples, rowvar=False), n=all_samples.shape[0])
 
+setting_list = [
+    {'known_interventions': iv_nodes, 'samples': samples}
+    for iv_nodes, samples in sample_dict.items()
+    if iv_nodes != frozenset()
+]
+
 # === RUN UNKNOWN TARGET IGSP WITH GAUSS CI
-# for alpha in [1e-5, 1e-4, 1e-3, 1e-2, 5e-2, 1e-1]:
-#     filename = os.path.join(ESTIMATED_FOLDER, 'utigsp_gauss_ci_alpha=%.2e.txt' % alpha)
-#     if not os.path.exists(filename):
-#         est_dag = unknown_target_igsp(
-#             sample_dict,
-#             suffstat,
-#             nnodes,
-#             gauss_ci_test,
-#             hsic_invariance_test,
-#             alpha=alpha,
-#             nruns=10,
-#             alpha_invariance=alpha
-#         )
-#         np.savetxt(filename, est_dag.to_amat())
+for alpha in [1e-5, 1e-4, 1e-3, 1e-2, 5e-2, 1e-1]:
+    filename = os.path.join(ESTIMATED_FOLDER, 'utigsp_gauss_ci_alpha=%.2e.txt' % alpha)
+    if not os.path.exists(filename):
+        est_dag = unknown_target_igsp(
+            sample_dict[frozenset()],
+            setting_list,
+            suffstat,
+            nnodes,
+            gauss_ci_test,
+            hsic_invariance_test,
+            alpha=alpha,
+            nruns=10,
+            alpha_invariance=alpha
+        )
+        np.savetxt(filename, est_dag.to_amat())
 
 # === RUN UNKNOWN TARGET IGSP WITH HSIC
-# for alpha in tqdm([1e-1, 5e-1]):
-#     alpha_invariance = 1e-5
-#     filename = os.path.join(ESTIMATED_FOLDER, 'utigsp_hsic_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_invariance))
-#     if not os.path.exists(filename):
-#         est_dag = unknown_target_igsp(
-#             sample_dict,
-#             sample_dict[frozenset()],
-#             nnodes,
-#             hsic_test,
-#             hsic_invariance_test,
-#             alpha=alpha,
-#             nruns=10,
-#             alpha_invariance=alpha_invariance,
-#             verbose=True
-#         )
-#         np.savetxt(filename, est_dag.to_amat())
+for alpha in tqdm([1e-1, 5e-1]):
+    alpha_invariance = 1e-5
+    filename = os.path.join(ESTIMATED_FOLDER, 'utigsp_hsic_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_invariance))
+    if not os.path.exists(filename):
+        est_dag = unknown_target_igsp(
+            sample_dict[frozenset()],
+            setting_list,
+            sample_dict[frozenset()],
+            nnodes,
+            hsic_test,
+            hsic_invariance_test,
+            alpha=alpha,
+            nruns=10,
+            alpha_invariance=alpha_invariance,
+            verbose=True
+        )
+        np.savetxt(filename, est_dag.to_amat())
 
 # === RUN IGSP WITH GAUSS CI
 # for alpha in tqdm([1e-5, 1e-4, 1e-3, 1e-2, 5e-2, 1e-1, 3e-1, 5e-1]):
@@ -101,12 +109,13 @@ for iv_nodes, samples in sample_dict.items():
         np.savetxt(os.path.join(iv_sample_folder, iv_str), samples)
 
 # === RUN ICP
-for alpha in tqdm([1e-3, 5e-3, 1e-2, 5e-2, 1e-1, 3e-1, 5e-1]):
+for alpha in tqdm([1e-2, 5e-2, 1e-1, 3e-1]):
     filename = os.path.join(ESTIMATED_FOLDER, 'icp_alpha=%.2e' % alpha)
     if not os.path.exists(filename):
         amat = run_icp(
             sample_folder,
-            alpha
+            alpha,
+            nonlinear=True
         )
         np.savetxt(filename, amat)
 

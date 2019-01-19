@@ -13,7 +13,7 @@ dag_config = DagConfig(
 sample_config = SampleConfig(
     settings_list=[
         SampleSetting(nsamples=nsamples, ntargets=ntargets, nsettings=nsettings)
-        for nsamples, ntargets, nsettings in itr.product([100, 200, 300, 500], [(3, 0), (2, 1), (1, 2)], [3])
+        for nsamples, ntargets, nsettings in itr.product([400, 600, 800], [(3, 0), (2, 1), (1, 2)], [3])
     ],
     intervention=ScalingIntervention(.1, .2),
     dag_config=dag_config
@@ -40,15 +40,15 @@ gies_settings = [
     for lambda_ in [50, 100]
 ]
 alg_config = AlgConfig(
-    settings_list=utigsp_pool_settings+igsp_pool_settings,
+    settings_list=igsp_settings+utigsp_settings+gies_settings,
     # settings_list=igsp_settings+utigsp_settings+gies_settings+utigsp_pool_settings+igsp_pool_settings,
     dag_config=dag_config,
     sample_config=sample_config,
 )
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
     # dag_config.save_graphs()
     # dags = dag_config.load_graphs()
     # sample_config._save_samples()
-    # results = alg_config.run_alg()
+    results = alg_config.run_alg()
 

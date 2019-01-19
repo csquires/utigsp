@@ -6,7 +6,8 @@ data/
 figures/
 real_data_analysis/sachs/estimated/
 tmp/
-tmp_dixit/
+tmp_dixit*
 tmp_sachs/
 tmp_test_igsp/
+tmp_icp_test/
 real_data_analysis/dixit/estimated/

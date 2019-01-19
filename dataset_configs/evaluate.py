@@ -72,11 +72,11 @@ def get_shd_array(dag_config, sample_config, alg_config, dag_setting2graph):
                         nneighbors=dag_setting.nneighbors,
                         **asdict(alg_setting)
                     )
-                    if not isinstance(alg_setting, ICPSetting):
+                    if isinstance(alg_setting, ICPSetting):  # this isn't necessarily a DAG so must be handled differently
+                        shd_array_dict[alg_setting.alg].loc[loc] = utils.shd_mat(true_dag.to_amat(mode='numpy')[0], estimated_dag)
+                    else:
                         shd_array_dict[alg_setting.alg].loc[loc] = true_dag.shd(estimated_dag)
                         imec_array_dict[alg_setting.alg].loc[loc] = true_dag.markov_equivalent(estimated_dag, interventions=interventions)
-                    else:
-                        shd_array_dict[alg_setting.alg].loc[loc] = utils.shd_mat(true_dag.to_amat(mode='numpy')[0], estimated_dag)
 
     return shd_array_dict, imec_array_dict
 

@@ -30,8 +30,8 @@ alg_config = AlgConfig(
 )
 
 if __name__ == '__main__':
-    # dag_config.save_graphs()
-    # dags = dag_config.load_graphs()
-    # sample_config._save_samples()
+    dag_config.save_graphs()
+    dags = dag_config.load_graphs()
+    sample_config._save_samples()
     results = alg_config.run_alg()
 

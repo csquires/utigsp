@@ -31,9 +31,9 @@ def run_igsp_multi(sample_folder, alpha):
     return amat
 
 
-def run_icp(sample_folder, alpha):
+def run_icp(sample_folder, alpha, nonlinear=False):
     r_file = os.path.join(PROJECT_FOLDER, 'R_algs', 'run_icp.R')
-    r_command = 'Rscript "%s" %s %s' % (r_file, alpha, sample_folder)
+    r_command = 'Rscript "%s" %s %s %s' % (r_file, alpha, sample_folder, nonlinear)
     os.makedirs(os.path.join(sample_folder, 'estimates', 'icp'), exist_ok=True)
     os.system(r_command)
     amat = np.loadtxt(os.path.join(sample_folder, 'estimates', 'icp', 'alpha=%.2e.txt' % alpha))

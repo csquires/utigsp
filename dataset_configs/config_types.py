@@ -307,12 +307,19 @@ def _run_alg_graph(tup):
         suffstat = dict(C=corr, n=ss.nsamples)
         suffstat_all = dict(C=corr_all, n=ss.nsamples*(1+ss.nsettings))
 
+        setting_list = [
+            {'known_interventions': iv_nodes, 'samples': samples}
+            for iv_nodes, samples in samples_dict.items()
+            if iv_nodes != frozenset()
+        ]
+
         alg_setting2results = {}
         for alg_setting in alg_settings:
             print('running %s' % alg_setting)
             if isinstance(alg_setting, UTIGSPSetting):
                 est_dag = unknown_target_igsp(
-                    samples_dict,
+                    samples_dict[frozenset()],
+                    setting_list,
                     suffstat,
                     nnodes,
                     gauss_ci_test,
@@ -322,9 +329,10 @@ def _run_alg_graph(tup):
                     depth=alg_setting.depth,
                     nruns=alg_setting.nruns
                 )
-            if isinstance(alg_setting, UTIGSP_Pool_Setting):
+            elif isinstance(alg_setting, UTIGSP_Pool_Setting):
                 est_dag = unknown_target_igsp(
-                    samples_dict,
+                    samples_dict[frozenset()],
+                    setting_list,
                     suffstat_all,
                     nnodes,
                     gauss_ci_test,
@@ -387,9 +395,17 @@ class AlgConfig:
     sample_config: SampleConfig
 
     def algs2settings(self):
-        d = {'igsp': defaultdict(set), 'utigsp': defaultdict(set), 'gies': defaultdict(set), 'icp': defaultdict(set)}
+        d = {
+            'igsp': defaultdict(set),
+            'utigsp': defaultdict(set),
+            'gies': defaultdict(set),
+            'icp': defaultdict(set),
+            'igsp_r_multi': defaultdict(set),
+            'igsp_pool': defaultdict(set),
+            'utigsp_pool': defaultdict(set),
+        }
         for setting in self.settings_list:
-            if setting.alg == 'igsp' or setting.alg == 'utigsp':
+            if setting.alg == 'igsp' or setting.alg == 'utigsp' or setting.alg == 'igsp_pool' or setting.alg == 'utigsp_pool':
                 d[setting.alg]['nruns'].add(setting.nruns)
                 d[setting.alg]['depth'].add(setting.depth)
                 d[setting.alg]['alpha'].add(setting.alpha)
@@ -398,7 +414,7 @@ class AlgConfig:
                 d[setting.alg]['lambda_'].add(setting.lambda_)
             elif setting.alg == 'icp':
                 d[setting.alg]['alpha'].add(setting.alpha)
-            elif setting.alg == 'igsp_r':
+            elif setting.alg == 'igsp_r_multi':
                 d[setting.alg]['alpha'].add(setting.alpha)
         d = {alg: {param: list(vals) for param, vals in settings.items()} for alg, settings in d.items()}
         return d
