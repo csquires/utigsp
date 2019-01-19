@@ -1,5 +1,7 @@
 import argparse
 import os
+import sys
+sys.path.append('../..')
 from causaldag.inference.structural import igsp
 from causaldag.utils.ci_tests import gauss_ci_test, hsic_invariance_test, hsic_test
 from real_data_analysis.dixit.dixit_meta import get_sample_dict, ESTIMATED_FOLDER, nnodes

@@ -58,10 +58,10 @@ handles = [
 for ntargets, ls in zip(ntargets_list, LINESTYLES):
     plt.plot(mean_shd_igsp.nsamples, mean_shd_igsp.sel(ntargets=ntargets).squeeze(), color=ALGS2COLORS['igsp'], linestyle=ls)
     plt.plot(mean_shd_utigsp.nsamples, mean_shd_utigsp.sel(ntargets=ntargets).squeeze(), color=ALGS2COLORS['utigsp'], linestyle=ls)
-    plt.plot(mean_shd_igsp_pool.nsamples, mean_shd_igsp_pool.sel(ntargets=ntargets).squeeze(), color=ALGS2COLORS['igsp_pool'],
-             linestyle=ls)
-    plt.plot(mean_shd_utigsp_pool.nsamples, mean_shd_utigsp_pool.sel(ntargets=ntargets).squeeze(), color=ALGS2COLORS['utigsp_pool'],
-             linestyle=ls)
+    # plt.plot(mean_shd_igsp_pool.nsamples, mean_shd_igsp_pool.sel(ntargets=ntargets).squeeze(), color=ALGS2COLORS['igsp_pool'],
+    #          linestyle=ls)
+    # plt.plot(mean_shd_utigsp_pool.nsamples, mean_shd_utigsp_pool.sel(ntargets=ntargets).squeeze(), color=ALGS2COLORS['utigsp_pool'],
+    #          linestyle=ls)
     plt.plot(mean_shd_gies.nsamples, mean_shd_gies.sel(ntargets=ntargets).squeeze(), color=ALGS2COLORS['gies'], linestyle=ls)
     plt.plot(mean_shd_icp.nsamples, mean_shd_icp.sel(ntargets=ntargets).squeeze(), color=ALGS2COLORS['icp'], linestyle=ls)
 plt.legend(handles=handles)
@@ -76,10 +76,10 @@ plt.clf()
 for ntargets, ls in zip(ntargets_list, LINESTYLES):
     plt.plot(percent_consistent_igsp.nsamples, percent_consistent_igsp.sel(ntargets=ntargets).squeeze(), color=ALGS2COLORS['igsp'], linestyle=ls)
     plt.plot(percent_consistent_utigsp.nsamples, percent_consistent_utigsp.sel(ntargets=ntargets).squeeze(), color=ALGS2COLORS['utigsp'], linestyle=ls)
-    plt.plot(percent_consistent_igsp_pool.nsamples, percent_consistent_igsp_pool.sel(ntargets=ntargets).squeeze(),
-             color=ALGS2COLORS['igsp_pool'], linestyle=ls)
-    plt.plot(percent_consistent_utigsp_pool.nsamples, percent_consistent_utigsp_pool.sel(ntargets=ntargets).squeeze(),
-             color=ALGS2COLORS['utigsp_pool'], linestyle=ls)
+    # plt.plot(percent_consistent_igsp_pool.nsamples, percent_consistent_igsp_pool.sel(ntargets=ntargets).squeeze(),
+    #          color=ALGS2COLORS['igsp_pool'], linestyle=ls)
+    # plt.plot(percent_consistent_utigsp_pool.nsamples, percent_consistent_utigsp_pool.sel(ntargets=ntargets).squeeze(),
+    #          color=ALGS2COLORS['utigsp_pool'], linestyle=ls)
     plt.plot(percent_consistent_gies.nsamples, percent_consistent_gies.sel(ntargets=ntargets).squeeze(), color=ALGS2COLORS['gies'], linestyle=ls)
     plt.plot(percent_consistent_icp.nsamples, percent_consistent_icp.sel(ntargets=ntargets).squeeze(), color=ALGS2COLORS['icp'], linestyle=ls)
 plt.legend(handles=handles)
@@ -95,10 +95,10 @@ plt.clf()
 for ntargets, ls in zip(ntargets_list, LINESTYLES):
     plt.plot(percent_correct_imec_igsp.nsamples, percent_correct_imec_igsp.sel(ntargets=ntargets).squeeze(), color=ALGS2COLORS['igsp'], linestyle=ls)
     plt.plot(percent_correct_imec_utigsp.nsamples, percent_correct_imec_utigsp.sel(ntargets=ntargets).squeeze(), color=ALGS2COLORS['utigsp'], linestyle=ls)
-    plt.plot(percent_correct_imec_igsp_pool.nsamples, percent_correct_imec_igsp_pool.sel(ntargets=ntargets).squeeze(),
-             color=ALGS2COLORS['igsp_pool'], linestyle=ls)
-    plt.plot(percent_correct_imec_utigsp_pool.nsamples, percent_correct_imec_utigsp_pool.sel(ntargets=ntargets).squeeze(),
-             color=ALGS2COLORS['utigsp_pool'], linestyle=ls)
+    # plt.plot(percent_correct_imec_igsp_pool.nsamples, percent_correct_imec_igsp_pool.sel(ntargets=ntargets).squeeze(),
+    #          color=ALGS2COLORS['igsp_pool'], linestyle=ls)
+    # plt.plot(percent_correct_imec_utigsp_pool.nsamples, percent_correct_imec_utigsp_pool.sel(ntargets=ntargets).squeeze(),
+    #          color=ALGS2COLORS['utigsp_pool'], linestyle=ls)
     plt.plot(percent_correct_imec_gies.nsamples, percent_correct_imec_gies.sel(ntargets=ntargets).squeeze(), color=ALGS2COLORS['gies'], linestyle=ls)
 plt.legend(handles=handles)
 # plt.xticks(mean_shd_igsp.nsamples)
