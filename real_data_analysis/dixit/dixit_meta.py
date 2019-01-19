@@ -8,6 +8,8 @@ DIXIT_DATA_FOLDER = os.path.join(DIXIT_FOLDER, 'data')
 ESTIMATED_FOLDER = os.path.join(DIXIT_FOLDER, 'estimated')
 FIGURES_FOLDER = os.path.join(DIXIT_FOLDER, 'figures')
 nnodes = 24
+for i in range(24):
+    os.makedirs(os.path.join(ESTIMATED_FOLDER, 'exclude_%d' % i), exist_ok=True)
 
 
 def get_sample_dict():

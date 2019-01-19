@@ -19,7 +19,7 @@ ci_test = args.ci_test
 
 # === LOAD SAMPLES AND REMOVE EXCLUDED
 obs_samples, setting_list = get_sample_dict2()
-suffstat = np.corrcoef(obs_samples, rowvar=False)
+suffstat = dict(C=np.corrcoef(obs_samples, rowvar=False), n=obs_samples.shape[0])
 setting_list_exclude = [setting for setting in setting_list if excluded not in setting['known_interventions']]
 
 # === CREATE FILENAME

@@ -4,7 +4,7 @@ import sys
 sys.path.append('../..')
 from causaldag.inference.structural import igsp
 from causaldag.utils.ci_tests import gauss_ci_test, hsic_invariance_test, hsic_test
-from real_data_analysis.dixit.dixit_meta import get_sample_dict, ESTIMATED_FOLDER, nnodes
+from real_data_analysis.dixit.dixit_meta import get_sample_dict2, ESTIMATED_FOLDER, nnodes
 import numpy as np
 
 # === PARSE
@@ -18,8 +18,17 @@ excluded = args.excluded
 ci_test = args.ci_test
 
 # === LOAD SAMPLES AND REMOVE EXCLUDED
-sample_dict, suffstat = get_sample_dict()
-sample_dict_exclude = {k: v for k, v in sample_dict.items() if k != frozenset({excluded})}
+obs_samples, setting_list = get_sample_dict2()
+suffstat = dict(C=np.corrcoef(obs_samples, rowvar=False), n=obs_samples.shape[0])
+setting_list_exclude = [setting for setting in setting_list if excluded not in setting['known_interventions']]
+sample_dict_exclude = dict()
+for setting in setting_list_exclude:
+    iv_nodes = frozenset(setting['known_interventions'])
+    samples = setting['samples']
+    if iv_nodes not in sample_dict_exclude:
+        sample_dict_exclude[iv_nodes] = samples
+    else:
+        sample_dict_exclude[iv_nodes] = np.concatenate((sample_dict_exclude[iv_nodes], samples), axis=0)
 
 # === CREATE FILENAME
 alpha_invariance = 1e-5
