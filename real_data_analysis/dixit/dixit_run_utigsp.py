@@ -1,12 +1,14 @@
 import argparse
 import os
+import sys
+sys.path.append('../..')
 from causaldag.inference.structural import unknown_target_igsp
 from causaldag.utils.ci_tests import gauss_ci_test, hsic_invariance_test, hsic_test
 from real_data_analysis.dixit.dixit_meta import get_sample_dict, ESTIMATED_FOLDER, nnodes
 import numpy as np
 
 # === PARSE
-parser = argparse.ArgumentParser
+parser = argparse.ArgumentParser()
 parser.add_argument('--alpha', type=float)
 parser.add_argument('--excluded', type=int)
 parser.add_argument('--ci_test', type=str)

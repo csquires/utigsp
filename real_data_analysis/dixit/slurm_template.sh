@@ -2,7 +2,7 @@
 
 #SBATCH --ntasks 1
 #SBATCH --cpus-per-task 32
-#SBATCH --time 0:00:10
+#SBATCH --time 0:10:00
 #SBATCH -p newnodes
 #SBATCH -J test
 
