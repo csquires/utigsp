@@ -24,3 +24,30 @@ def get_sample_dict():
     suffstat = dict(C=np.corrcoef(obs_samples, rowvar=False), n=obs_samples.shape[0])
     return sample_dict, suffstat
 
+
+def get_sample_dict2():
+    perturbations = np.load(os.path.join(DIXIT_FOLDER, 'data2', 'perturbations.npy'))
+    perturbation2ix = {p: ix for ix, p in enumerate(perturbations)}
+    genes = np.load(os.path.join(DIXIT_FOLDER, 'data2', 'genes.npy'))
+    gene2ix = {g: ix for ix, g in enumerate(genes)}
+    perturbation_per_cell = np.load(os.path.join(DIXIT_FOLDER, 'data2', 'perturbation_per_cell.npy'))
+    total_count_matrix = np.load(os.path.join(DIXIT_FOLDER, 'data2', 'total_count_matrix.npy'))
+
+    # === GET OBSERVATIONAL DATA
+    control = 'm_MouseNTC_100_A_67005'
+    control_cell_ixs = np.where(perturbation_per_cell == perturbation2ix[control])
+    obs_samples = total_count_matrix[:, control_cell_ixs].squeeze().T
+
+    setting_list = []
+    for pnum, perturbation in enumerate(perturbations):
+        if perturbation != control:
+            iv_cell_ixs = np.where(perturbation_per_cell == perturbation2ix[perturbation])
+            iv_samples = total_count_matrix[:, iv_cell_ixs].squeeze().T
+            target_gene = perturbation[2:-2]
+            setting_list.append({'known_interventions': {gene2ix[target_gene]}, 'samples': iv_samples})
+
+    return obs_samples, setting_list
+
+
+
+
