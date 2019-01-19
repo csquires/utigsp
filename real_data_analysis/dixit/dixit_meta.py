@@ -32,6 +32,7 @@ def get_sample_dict2():
     gene2ix = {g: ix for ix, g in enumerate(genes)}
     perturbation_per_cell = np.load(os.path.join(DIXIT_FOLDER, 'data2', 'perturbation_per_cell.npy'))
     total_count_matrix = np.load(os.path.join(DIXIT_FOLDER, 'data2', 'total_count_matrix.npy'))
+    total_count_matrix = np.log1p(total_count_matrix)
 
     # === GET OBSERVATIONAL DATA
     control = 'm_MouseNTC_100_A_67005'
