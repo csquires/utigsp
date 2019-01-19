@@ -8,7 +8,7 @@ do
         do
             file='test_file'
             echo "python3 -m dixit_run_icp2.py --alpha ${alpha} --exclude ${exclude} --ci_test ${ci_test}" > tmp.sh
-            cat slurm_template.sh tmp.sh > ${file}.sh
+            cat slurm_template_R.sh tmp.sh > ${file}.sh
             rm tmp.sh
             sbatch ${file}.sh
         done
