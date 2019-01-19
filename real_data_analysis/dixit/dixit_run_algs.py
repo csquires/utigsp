@@ -9,19 +9,6 @@ from tqdm import tqdm
 from R_algs.wrappers import run_gies
 import multiprocessing
 
-sample_dict = {}
-ivs = []
-for file in os.listdir(DIXIT_DATA_FOLDER):
-    samples = pd.read_csv(os.path.join(DIXIT_DATA_FOLDER, file), sep=',')
-    iv_str = file.split('=')[1][:-4]
-    iv = frozenset({int(iv_str)}) if iv_str != '' else frozenset()
-    sample_dict[iv] = samples.values
-    if iv_str != '': ivs.append(int(iv_str))
-
-
-obs_samples = sample_dict[frozenset()]
-suffstat = dict(C=np.corrcoef(obs_samples, rowvar=False), n=obs_samples.shape[0])
-
 
 def run_algs(iv):
     iv_estimated_folder = os.path.join(ESTIMATED_FOLDER, 'exclude_%s' % iv)
