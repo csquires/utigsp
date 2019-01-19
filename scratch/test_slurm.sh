@@ -1,12 +1,8 @@
-#!/bin/bash
-
-#SBATCH -N 32
-#SBATCH -n 32
-#SBATCH --time 0:00:10
-#SBATCH -p sched_mit_nse
-
-module add engaging/python/3.6.0
-source ../venv/bin/activate
-
-python3 -m test_slurm.py --test hi
-
+for alpha in 0.0001 0.001 0.01 0.1
+do
+    file=`test_file`
+    echo "python3 -m test_slurm.py --test ${alpha}" > tmp.sh
+    cat slurm_template.sh tmp.sh > ${file.sh}
+    rm tmp.sh
+    sbatch ${file}.sh
+done
