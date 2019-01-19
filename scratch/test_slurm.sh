@@ -6,7 +6,7 @@
 #SBATCH -p sched_mit_nse
 
 module add engaging/python/3.6.0
-source venv/bin/activate
+source ../venv/bin/activate
 
-python3 -m scratch/test_slurm.py --test hi
+python3 -m test_slurm.py --test hi
 
