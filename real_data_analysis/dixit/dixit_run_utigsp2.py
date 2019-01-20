@@ -7,6 +7,7 @@ from causaldag.utils.ci_tests import gauss_ci_test, hsic_invariance_test, hsic_t
 from real_data_analysis.dixit.dixit_meta import ESTIMATED_FOLDER, nnodes, get_sample_dict2
 import numpy as np
 import multiprocessing
+import shutil
 
 # === PARSE
 parser = argparse.ArgumentParser()
@@ -28,6 +29,7 @@ def _run_alg(excluded):
     iv_estimated_folder = os.path.join(ESTIMATED_FOLDER, 'exclude_%s' % excluded)
     filename = os.path.join(iv_estimated_folder,
                             'utigsp_%s_alpha=%.2e,alpha_i=%.2e.txt' % (ci_test, alpha, alpha_invariance))
+    os.system('touch %d.tst' % excluded)
     if not os.path.exists(filename):
         if ci_test == 'gauss_ci':
             est_dag = unknown_target_igsp(
