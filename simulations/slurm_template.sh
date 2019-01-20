@@ -2,7 +2,7 @@
 
 #SBATCH --ntasks 1
 #SBATCH --cpus-per-task 32
-#SBATCH --time 6:00:00
+#SBATCH --time 1:00:00
 #SBATCH -p sched_any
 #SBATCH -J simulations
 
