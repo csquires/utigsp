@@ -7,7 +7,6 @@ from causaldag.utils.ci_tests import gauss_ci_test, hsic_invariance_test, hsic_t
 from real_data_analysis.dixit.dixit_meta import ESTIMATED_FOLDER, nnodes, get_sample_dict2
 import numpy as np
 import multiprocessing
-import shutil
 
 # === PARSE
 parser = argparse.ArgumentParser()
@@ -59,5 +58,6 @@ def _run_alg(excluded):
 
 
 with multiprocessing.Pool(multiprocessing.cpu_count() - 1) as pool:
+    os.system('touch %d.txt' % multiprocessing.cpu_count())
     pool.imap_unordered(_run_alg, list(range(24)))
 
