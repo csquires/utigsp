@@ -38,10 +38,10 @@ for (node in 1:ncol(obs_data)) {
         } else {
             res <- ICP(all_data[,-node], all_data[,node], all_settings, alpha=alpha, showAcceptedSets=FALSE, showCompletion=FALSE)
         }
-        print('==============================')
-        print('node:')
-        print(node)
-        print(res)
+        # print('==============================')
+        # print('node:')
+        # print(node)
+        # print(res)
         parent_ixs = Reduce(intersect, res$acceptedSets)
         # parent_ixs2 = which(res$pvalues < alpha)
         other_nodes = 1:ncol(all_data)
@@ -57,7 +57,7 @@ for (node in 1:ncol(obs_data)) {
 
 }
 
-print(amat)
+# print(amat)
 csv_name = paste(sample_path, '/estimates/icp/alpha=', formatC(alpha, format='e', digits=2),'.txt', sep='')
 write.table(amat, file=csv_name, row.names=FALSE, col.names=FALSE)
 

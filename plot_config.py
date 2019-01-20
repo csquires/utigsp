@@ -5,7 +5,7 @@ from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
 
 ALGS2COLORS = dict(zip(['utigsp', 'igsp', 'gies', 'igsp_r', 'igsp_pool', 'utigsp_pool', 'icp'], sns.color_palette()))
-ALGS2MARKERS = {'utigsp': 'x', 'igsp': 'o', 'gies': '.', 'icp': 's'}
+ALGS2MARKERS = {'utigsp': '*', 'igsp': 'o', 'gies': '+', 'icp': 's'}
 LINESTYLES = ['-', '--', 'dotted']
 MARKERS = ['x', 'o', '.', 's', '*', '+']
 ALG_HANDLES = [Patch(color=c, label=alg) for alg, c in ALGS2COLORS.items()]

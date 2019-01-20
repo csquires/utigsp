@@ -2,6 +2,7 @@ import os
 from config import PROJECT_FOLDER
 import numpy as np
 import pandas as pd
+import random
 
 DIXIT_FOLDER = os.path.join(PROJECT_FOLDER, 'real_data_analysis', 'dixit')
 DIXIT_DATA_FOLDER = os.path.join(DIXIT_FOLDER, 'data')
@@ -46,6 +47,35 @@ def get_sample_dict2():
         if perturbation != control:
             iv_cell_ixs = np.where(perturbation_per_cell == perturbation2ix[perturbation])
             iv_samples = total_count_matrix[:, iv_cell_ixs].squeeze().T
+            target_gene = perturbation[2:-2]
+            setting_list.append({'known_interventions': {gene2ix[target_gene]}, 'samples': iv_samples})
+
+    return obs_samples, setting_list
+
+
+def get_sample_dict2_reduced():
+    random.seed(1729)
+    np.random.seed(1729)
+    perturbations = np.load(os.path.join(DIXIT_FOLDER, 'data2', 'perturbations.npy'))
+    perturbation2ix = {p: ix for ix, p in enumerate(perturbations)}
+    genes = np.load(os.path.join(DIXIT_FOLDER, 'data2', 'genes.npy'))
+    gene2ix = {g: ix for ix, g in enumerate(genes)}
+    perturbation_per_cell = np.load(os.path.join(DIXIT_FOLDER, 'data2', 'perturbation_per_cell.npy'))
+    total_count_matrix = np.load(os.path.join(DIXIT_FOLDER, 'data2', 'total_count_matrix.npy'))
+    total_count_matrix = np.log1p(total_count_matrix)
+
+    # === GET OBSERVATIONAL DATA
+    control = 'm_MouseNTC_100_A_67005'
+    control_cell_ixs = np.where(perturbation_per_cell == perturbation2ix[control])
+    obs_samples = total_count_matrix[:, control_cell_ixs].squeeze().T
+    obs_samples = obs_samples[random.sample(list(range(obs_samples.shape[0])), 10)]
+
+    setting_list = []
+    for pnum, perturbation in enumerate(perturbations):
+        if perturbation != control:
+            iv_cell_ixs = np.where(perturbation_per_cell == perturbation2ix[perturbation])
+            iv_samples = total_count_matrix[:, iv_cell_ixs].squeeze().T
+            iv_samples = iv_samples[random.sample(list(range(iv_samples.shape[0])), 10)]
             target_gene = perturbation[2:-2]
             setting_list.append({'known_interventions': {gene2ix[target_gene]}, 'samples': iv_samples})
 

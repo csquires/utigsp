@@ -43,6 +43,7 @@ def _run_alg(excluded):
                             'igsp_%s_alpha=%.2e,alpha_i=%.2e.txt' % (ci_test, alpha, alpha_invariance))
     if not os.path.exists(filename):
         if ci_test == 'gauss_ci':
+            os.system('touch gauss_ci_igsp_%d.tst' % excluded)
             est_dag = igsp(
                 sample_dict_exclude,
                 suffstat,
@@ -54,6 +55,7 @@ def _run_alg(excluded):
                 alpha_invariance=alpha_invariance
             )
         else:
+            os.system('touch hsic_igsp_%d.tst' % excluded)
             est_dag = igsp(
                 sample_dict_exclude,
                 sample_dict_exclude[frozenset()],

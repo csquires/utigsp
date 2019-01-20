@@ -25,7 +25,7 @@ for (file in list.files(iv_sample_folder)) {
 }
 
 # === ESTIMATE WITH GIES
-gies_score_fn <- new("GaussL0penIntScore", all_data, setting2targets, all_settings, lambda=lambda*.05*log(nrow(all_data))) # BIC score
+gies_score_fn <- new("GaussL0penIntScore", all_data, setting2targets, all_settings, lambda=lambda*.5*log(nrow(all_data))) # BIC score
 gies.fit <- gies(gies_score_fn)
 weights = gies.fit$repr$weight.mat()
 
