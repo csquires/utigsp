@@ -1,14 +1,14 @@
 import os
 import itertools as itr
 
-nnodes = 100
+nnodes = 20
 nneighbors = 1.5
 ndags = 50
 nsamples_list = [100, 300, 500]
-nsettings_list = [3]
-ntargets_list = [(3, 0)]
-intervention = 'inhibitory1'
-alpha_list = [1e-5, 1e-4, 1e-3, 1e-2, 1e-1]
+nsettings_list = [20]
+ntargets_list = [(1, 0), (1, 2), (1, 4), (1, 6), (1, 8)]
+intervention = 'perfect1'
+alpha_list = [1e-5]
 alpha_invariant_list = [1e-5]
 
 
@@ -23,4 +23,4 @@ if __name__ == '__main__':
         os.system(f'cd .. && echo "{full_command}" > tmp.sh')
         os.system('cd .. && cat slurm_template.sh tmp.sh > job.sh')
         os.system('cd .. && rm tmp.sh')
-        # os.system('sbatch job.sh')
+        os.system('sbatch job.sh')
