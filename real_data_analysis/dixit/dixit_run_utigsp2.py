@@ -31,6 +31,7 @@ if __name__ == '__main__':
         os.system('touch %d.tst' % excluded)
         if not os.path.exists(filename):
             if ci_test == 'gauss_ci':
+                print('running gauss ci')
                 est_dag = unknown_target_igsp(
                     obs_samples,
                     setting_list_exclude,
@@ -43,7 +44,8 @@ if __name__ == '__main__':
                     alpha_invariance=alpha_invariance,
                     verbose=True
                 )
-            else:
+            elif ci_test == 'hsic':
+                print('running hsic')
                 est_dag = unknown_target_igsp(
                     obs_samples,
                     setting_list_exclude,
@@ -53,8 +55,11 @@ if __name__ == '__main__':
                     hsic_invariance_test,
                     alpha=alpha,
                     nruns=10,
-                    alpha_invariance=alpha_invariance
+                    alpha_invariance=alpha_invariance,
+                    verbose=True
                 )
+            else:
+                raise ValueError
             np.savetxt(filename, est_dag.to_amat())
 
 
