@@ -9,15 +9,27 @@ from config import PROJECT_FOLDER
 INTERVENTIONS = {'perfect1': cd.GaussIntervention(1, .01), 'inhibitory1': cd.ScalingIntervention(.1, .2)}
 
 
-def get_sample_folder(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention_str, dag_num):
+def get_dag_folder(ndags, nnodes, nneighbors, dag_num):
     base_folder = os.path.join(PROJECT_FOLDER, 'simulations', 'data', 'nnodes=%d_nneighbors=%s_ndags=%d' % (nnodes, nneighbors, ndags))
-    dag_folder = os.path.join(base_folder, 'dag%d' % dag_num)
+    return os.path.join(base_folder, 'dag%d' % dag_num)
+
+
+def get_sample_folder(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention_str, dag_num):
+    dag_folder = get_dag_folder(ndags, nnodes, nneighbors, dag_num)
     sample_str = 'nsamples=%s,num_known=%d,num_unknown=%d,nsettings=%d,intervention=%s' % (nsamples, num_known, num_unknown, nsettings, intervention_str)
     sample_folder = os.path.join(dag_folder, 'samples', sample_str)
     return sample_folder
 
 
 def save_dags_and_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention_str):
+    # === IF THIS HAS ALREADY BEEN DONE, SKIP
+    if os.path.exists(os.path.join(
+        PROJECT_FOLDER, 'simulations', 'data',
+        'nnodes=%d_nneighbors=%s_ndags=%d' % (nnodes, nneighbors, ndags), 'dag0',
+        'nsamples=%s,num_known=%d,num_unknown=%d,nsettings=%d,intervention=%s' % (nsamples, num_known, num_unknown, nsettings, intervention_str)
+    )):
+        return
+
     random.seed(1729)
     np.random.seed(1729)
     nodes = set(range(nnodes))
@@ -74,8 +86,6 @@ def save_dags_and_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_kn
             unknown_iv_str = ','.join(map(str, setting['unknown_interventions']))
             filename = os.path.join(iv_sample_folder, 'known_ivs=%s;unknown_ivs=%s.txt' % (known_iv_str, unknown_iv_str))
             np.savetxt(filename, setting['samples'])
-
-    return samples_by_dag
 
 
 def get_dag_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention_str, dag_num):
