@@ -7,4 +7,4 @@
 #SBATCH -J dixit-analysis
 
 module add engaging/python/3.6.0
-source ../../venv/bin/activate
+source ../venv/bin/activate
