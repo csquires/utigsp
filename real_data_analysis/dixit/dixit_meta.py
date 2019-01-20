@@ -68,14 +68,14 @@ def get_sample_dict2_reduced():
     control = 'm_MouseNTC_100_A_67005'
     control_cell_ixs = np.where(perturbation_per_cell == perturbation2ix[control])
     obs_samples = total_count_matrix[:, control_cell_ixs].squeeze().T
-    obs_samples = obs_samples[random.sample(list(range(obs_samples.shape[0])), 10)]
+    obs_samples = obs_samples[random.sample(list(range(obs_samples.shape[0])), 50)]
 
     setting_list = []
     for pnum, perturbation in enumerate(perturbations):
         if perturbation != control:
             iv_cell_ixs = np.where(perturbation_per_cell == perturbation2ix[perturbation])
             iv_samples = total_count_matrix[:, iv_cell_ixs].squeeze().T
-            iv_samples = iv_samples[random.sample(list(range(iv_samples.shape[0])), 10)]
+            iv_samples = iv_samples[random.sample(list(range(iv_samples.shape[0])), 50)]
             target_gene = perturbation[2:-2]
             setting_list.append({'known_interventions': {gene2ix[target_gene]}, 'samples': iv_samples})
 
