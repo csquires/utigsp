@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-for ci_test in gauss_ci hsic
+for ci_test in hsic
 do
     for alpha in 0.0001 0.001 0.01 0.1
     do

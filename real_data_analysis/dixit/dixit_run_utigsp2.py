@@ -58,5 +58,6 @@ def _run_alg(excluded):
 
 
 with multiprocessing.Pool(multiprocessing.cpu_count() - 1) as pool:
-    pool.map(_run_alg, list(range(24)))
+    nodes = list(range(24))
+    list(pool.imap_unordered(_run_alg, nodes))
 
