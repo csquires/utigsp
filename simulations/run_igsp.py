@@ -30,7 +30,7 @@ if __name__ == '__main__':
     parser.add_argument('--depth', type=int, default=4)
     parser.add_argument('--alpha', type=float)
     parser.add_argument('--alpha_invariant', type=float)
-    parser.add_argument('--pool', type='str', default='auto')
+    parser.add_argument('--pooled', type=str, default='auto')
 
     # === PARSE ARGUMENTS
     args = parser.parse_args()
@@ -49,6 +49,7 @@ if __name__ == '__main__':
     depth = args.depth
     alpha = args.alpha
     alpha_invariant = args.alpha_invariant
+    pooled = args.pooled
 
     # === CREATE DAGS AND SAMPLES: THIS MUST BE DONE THE SAME WAY EVERY TIME FOR THIS TO WORK
     save_dags_and_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention)
@@ -69,9 +70,9 @@ if __name__ == '__main__':
         if not os.path.exists(filename):
             obs_samples, setting_list, sample_dict = get_dag_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention, dag_num)
 
-            if pool == 'false':
+            if pooled == 'false':
                 suffstat = dict(C=np.corrcoef(obs_samples, rowvar=False), n=nsamples)
-            elif pool == 'true':
+            elif pooled == 'true':
                 all_samples = np.concatenate((obs_samples, *[setting['samples'] for setting in setting_list]), axis=0)
                 suffstat = dict(C=np.corrcoef(all_samples, rowvar=False), n=nsamples)
             elif nsamples <= 300:
