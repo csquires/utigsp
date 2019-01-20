@@ -1,9 +1,9 @@
 from dataset_configs.config_types import DagConfig, SampleConfig, AlgConfig, DagSetting, SampleSetting
 from dataset_configs.config_types import UTIGSPSetting, IGSPSetting, GIESSetting, IGSP_Pool_Setting, UTIGSP_Pool_Setting
-from causaldag import ScalingIntervention
+from causaldag import GaussIntervention
 import itertools as itr
 
-DATASET_NAME = 'fig1_inhibiting_alternative'
+DATASET_NAME = 'fig1_alternative'
 dag_config = DagConfig(
     dataset_name=DATASET_NAME,
     nnodes=8,
@@ -13,9 +13,9 @@ dag_config = DagConfig(
 sample_config = SampleConfig(
     settings_list=[
         SampleSetting(nsamples=nsamples, ntargets=ntargets, nsettings=nsettings)
-        for nsamples, ntargets, nsettings in itr.product([600], [(1, 0), (1, 1), (1, 2), (1, 3)], [8])
+        for nsamples, ntargets, nsettings in itr.product([100, 200, 300, 500], [(1, 0), (1, 1), (1, 2), (1, 3)], [8])
     ],
-    intervention=ScalingIntervention(.1, .2),
+    intervention=GaussIntervention(1, .1),
     dag_config=dag_config
 )
 
@@ -38,9 +38,9 @@ alg_config = AlgConfig(
     sample_config=sample_config,
 )
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
 #     dag_config.save_graphs()
 #     dags = dag_config.load_graphs()
-    sample_config._save_samples()
-    results = alg_config.run_alg()
+#     sample_config._save_samples()
+#     results = alg_config.run_alg()
 
