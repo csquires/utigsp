@@ -40,7 +40,8 @@ def _run_alg(excluded):
                 hsic_invariance_test,
                 alpha=alpha,
                 nruns=10,
-                alpha_invariance=alpha_invariance
+                alpha_invariance=alpha_invariance,
+                verbose=True
             )
         else:
             est_dag = unknown_target_igsp(
