@@ -12,3 +12,5 @@ tmp_test_igsp/
 tmp_icp_test/
 real_data_analysis/dixit/estimated/
 simulations/data
+*slurm*.out
+*.tst
