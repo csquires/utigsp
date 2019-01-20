@@ -2,7 +2,7 @@ import argparse
 import os
 import numpy as np
 import causaldag as cd
-from causaldag.inference.structural import unknown_target_igsp
+from causaldag.inference.structural import igsp
 from causaldag.utils.ci_tests import gauss_ci_test, hsic_invariance_test
 import multiprocessing
 from tqdm import tqdm
@@ -58,16 +58,16 @@ if __name__ == '__main__':
     ]
 
 
-    def _run_utigsp(dag_num):
+    def _run_igsp(dag_num):
         # === GENERATE FILENAME
         sample_folder = sample_folders[dag_num]
-        alg_folder = os.path.join(sample_folder, 'estimates', 'utigsp')
+        alg_folder = os.path.join(sample_folder, 'estimates', 'igsp')
         os.makedirs(alg_folder, exist_ok=True)
         filename = os.path.join(alg_folder, 'nruns=%d,depth=%d,alpha=%.2e,alpha_invariant=%.2e' % (nruns, depth, alpha, alpha_invariant))
 
         # === RUN ALGORITHM
         if not os.path.exists(filename):
-            obs_samples, setting_list, _ = get_dag_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention, dag_num)
+            obs_samples, setting_list, sample_dict = get_dag_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention, dag_num)
 
             if pool == 'false':
                 suffstat = dict(C=np.corrcoef(obs_samples, rowvar=False), n=nsamples)
@@ -80,9 +80,8 @@ if __name__ == '__main__':
                 all_samples = np.concatenate((obs_samples, *setting['samples'] for setting in setting_list), axis=0)
                 suffstat = dict(C=np.corrcoef(all_samples, rowvar=False), n=nsamples)
 
-            est_dag = unknown_target_igsp(
-                obs_samples,
-                setting_list,
+            est_dag = igsp(
+                sample_dict,
                 suffstat,
                 nnodes,
                 gauss_ci_test,
@@ -101,13 +100,13 @@ if __name__ == '__main__':
 
     with multiprocessing.Pool(multiprocessing.cpu_count() - 1) as pool:
         dag_nums = list(range(ndags))
-        est_dags = list(tqdm(pool.imap(_run_utigsp, dag_nums), total=ndags))
+        est_dags = list(tqdm(pool.imap(_run_igsp, dag_nums), total=ndags))
 
     # === CREATE FOLDER FOR RESULTS
     dag_str = 'nnodes=%d_nneighbors=%s_ndags=%d' % (nnodes, nneighbors, ndags)
     sample_str = 'nsamples=%s,num_known=%d,num_unknown=%d,nsettings=%d,intervention=%s' % (nsamples, num_known, num_unknown, nsettings, intervention)
     alg_str = 'nruns=%d,depth=%d,alpha=%.2e,alpha_invariant=%.2e,pool=%s' % (nruns, depth, alpha, alpha_invariant, pool)
-    result_folder = os.path.join(PROJECT_FOLDER, 'simulations', 'results', dag_str, sample_str, 'utigsp', alg_str)
+    result_folder = os.path.join(PROJECT_FOLDER, 'simulations', 'results', dag_str, sample_str, 'igsp', alg_str)
     os.makedirs(result_folder, exist_ok=True)
 
     # === LOAD TRUE DAGS
