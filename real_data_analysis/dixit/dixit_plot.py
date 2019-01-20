@@ -1,4 +1,4 @@
-from real_data_analysis.dixit.create_significant_effect_list2 import ivs2significant_effects
+from real_data_analysis.dixit.create_significant_effect_list2 import ivs2significant_effects, pvalues
 from real_data_analysis.dixit.dixit_meta import nnodes, ESTIMATED_FOLDER, DIXIT_FOLDER
 from plot_config import ALGS2COLORS
 import causaldag as cd
@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set()
 
-npossible_effects = len(ivs2significant_effects)*(nnodes-1)
+npossible_effects = nnodes*(nnodes-1)
 npositives = sum(len(effects) for iv_nodes, effects in ivs2significant_effects.items())
 
 # === GET NUMBER OF DIFFERENT SETTING
@@ -58,8 +58,17 @@ total_fp_gies, total_tp_gies = sort_fp_tp(total_fp_gies, total_tp_gies)
 
 # === PLOT
 plt.clf()
-plt.plot(total_fp_gies, total_tp_gies, color=ALGS2COLORS['gies'])
+plt.plot(total_fp_gies, total_tp_gies, color=ALGS2COLORS['gies'], label='GIES')
 plt.plot([0, npossible_effects-npositives], [0, npositives], color='grey')
 plt.xlabel('False positives')
 plt.ylabel('True positives')
+plt.legend()
 plt.savefig(os.path.join(DIXIT_FOLDER, 'figures', 'roc.png'))
+
+
+# === PLOT PVALUES
+plt.clf()
+plt.hist(pvalues, bins=100)
+plt.xlabel('p-value')
+plt.ylabel('Count')
+plt.savefig(os.path.join(DIXIT_FOLDER, 'figures', 'pvalue-hist.png'))
