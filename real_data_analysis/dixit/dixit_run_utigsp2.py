@@ -58,6 +58,5 @@ def _run_alg(excluded):
 
 
 with multiprocessing.Pool(multiprocessing.cpu_count() - 1) as pool:
-    os.system('touch %d.txt' % multiprocessing.cpu_count())
     pool.map(_run_alg, list(range(24)))
 
