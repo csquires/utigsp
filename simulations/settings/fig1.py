@@ -23,4 +23,4 @@ if __name__ == '__main__':
         os.system(f'cd .. && echo "{full_command}" > tmp.sh')
         os.system('cd .. && cat slurm_template.sh tmp.sh > job.sh')
         os.system('cd .. && rm tmp.sh')
-        os.system('sbatch job.sh')
+        os.system('cd .. && sbatch job.sh')
