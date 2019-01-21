@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-for ci_test in gauss_ci
+for ci_test in gauss_ci hsic
 do
     for alpha in .2 .3 .4 .5 .6 .7
     do
