@@ -87,10 +87,41 @@ if __name__ == '__main__':
     # === LOAD TRUE DAGS
     dag_filenames = [os.path.join(get_dag_folder(ndags, nnodes, nneighbors, dag_num), 'amat.txt') for dag_num in range(ndags)]
     true_amats = [np.loadtxt(dag_filename) for dag_filename in dag_filenames]
+    true_dags = [cd.DAG.from_amat(amat) for amat in true_amats]
 
     # === SAVE SHDS
     shds = [utils.shd_mat(true_amat, est_amat) for true_amat, est_amat in zip(true_amats, est_amats)]
     np.savetxt(os.path.join(result_folder, 'shds.txt'), shds)
+
+    # === CONVERT AMATS TO DAGS IF POSSIBLE
+    est_dags = []
+    for est_amat in est_amats:
+        try:
+            d = cd.DAG.from_amat(est_amat)
+        except Exception as e:
+            print(e)
+            d = None
+        est_dags.append(d)
+
+    # === SAVE IS-IMEC
+    def get_interventions(filename):
+        known_iv_str, unknown_iv_str = filename.split(';')
+        known_ivs = set(map(int, known_iv_str.split('=')[1].split(',')))
+        unknown_ivs = set(map(int, known_iv_str.split('=')[1].split(',')))
+        return known_ivs | unknown_ivs
+
+
+    intervention_filenames_list = [os.listdir(os.path.join(sample_folder, 'interventional')) for sample_folder in
+                                   sample_folders]
+    interventions_list = [
+        [get_interventions(filename) for filename in intervention_filenames]
+        for intervention_filenames in intervention_filenames_list
+    ]
+    is_imec = [
+        true_dag.markov_equivalent(est_dag, interventions=interventions) if est_dag is not None else False
+        for true_dag, est_dag, interventions in zip(true_dags, est_dags, interventions_list)
+    ]
+    np.savetxt(os.path.join(result_folder, 'imec.txt'), is_imec)
 
 
 

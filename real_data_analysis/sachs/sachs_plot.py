@@ -93,14 +93,14 @@ plt.clf()
 plt.scatter(gies_df.sort_values(by='fp')['fp'], gies_df.sort_values(by='fp')['tp'], label='GIES', marker=ALGS2MARKERS['gies'])
 plt.scatter(icp_df.sort_values(by='fp')['fp'], icp_df.sort_values(by='fp')['tp'], label='ICP', marker=ALGS2MARKERS['icp'])
 plt.scatter(igsp_hsic_df.sort_values(by='fp')['fp'], igsp_hsic_df.sort_values(by='fp')['tp'], label='IGSP', marker=ALGS2MARKERS['igsp'])
-for _, row in igsp_hsic_df.iterrows():
-    plt.annotate(row['label'], (row['fp'], row['tp']))
+# for _, row in igsp_hsic_df.iterrows():
+#     plt.annotate(row['label'], (row['fp'], row['tp']))
 plt.scatter(utigsp_hsic_df.sort_values(by='fp')['fp'], utigsp_hsic_df.sort_values(by='fp')['tp'], label='UTIGSP', marker=ALGS2MARKERS['utigsp'])
-plt.plot([0, npossible_arcs - len(true_dag.arcs)], [0, len(true_dag.arcs)], color='grey')
+# plt.plot([0, npossible_arcs - len(true_dag.arcs)], [0, len(true_dag.arcs)], color='grey')
 plt.xlabel('False positives')
 plt.ylabel('True positives')
 plt.legend()
-plt.savefig(os.path.join(SACHS_FOLDER, 'figures', 'roc.png'))
+plt.savefig(os.path.join(SACHS_FOLDER, 'figures', 'sachs_roc.png'))
 
 # === PLOT ROC OF SKELETON
 plt.clf()
@@ -128,12 +128,13 @@ plt.scatter(
     label='UTIGSP',
     marker=ALGS2MARKERS['utigsp']
 )
-for _, row in igsp_hsic_df.iterrows():
-    plt.annotate(row['label'], (row['fp_skel'], row['tp_skel']))
+# for _, row in igsp_hsic_df.iterrows():
+#     plt.annotate(row['label'], (row['fp_skel'], row['tp_skel']))
 plt.plot([0, npossible_arcs_skel - len(true_skel)], [0, len(true_skel)], color='grey')
+plt.yticks(list(range(0, 19, 3)))
 plt.xlabel('False positives')
 plt.ylabel('True positives')
 plt.legend()
 plt.title('Skeleton')
-plt.savefig(os.path.join(SACHS_FOLDER, 'figures', 'roc_skeleton.png'))
+plt.savefig(os.path.join(SACHS_FOLDER, 'figures', 'sachs_roc_skeleton.png'))
 

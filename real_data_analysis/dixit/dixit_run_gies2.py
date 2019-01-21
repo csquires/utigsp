@@ -4,7 +4,7 @@ import sys
 sys.path.append('../..')
 from R_algs.wrappers import run_gies
 from config import PROJECT_FOLDER
-from real_data_analysis.dixit.dixit_meta import get_sample_dict2, ESTIMATED_FOLDER, nnodes
+from real_data_analysis.dixit.dixit_meta import get_sample_dict2_reduced, ESTIMATED_FOLDER, nnodes
 import numpy as np
 
 # === PARSE
@@ -20,7 +20,7 @@ iv_estimated_folder = os.path.join(ESTIMATED_FOLDER, 'exclude_%s' % excluded)
 filename = os.path.join(iv_estimated_folder, 'gies_lambda=%.2e.txt' % lam)
 
 # === LOAD DATA
-obs_samples, setting_list = get_sample_dict2()
+obs_samples, setting_list = get_sample_dict2_reduced()
 suffstat = dict(C=np.corrcoef(obs_samples, rowvar=False), n=obs_samples.shape[0])
 setting_list_exclude = [setting for setting in setting_list if excluded not in setting['known_interventions']]
 sample_dict_exclude = dict()

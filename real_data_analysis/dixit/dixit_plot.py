@@ -1,6 +1,6 @@
 from real_data_analysis.dixit.create_significant_effect_list2 import ivs2significant_effects, pvalues
 from real_data_analysis.dixit.dixit_meta import nnodes, ESTIMATED_FOLDER, DIXIT_FOLDER
-from plot_config import ALGS2COLORS
+from plot_config import ALGS2MARKERS
 import causaldag as cd
 import numpy as np
 import os
@@ -58,7 +58,7 @@ total_fp_gies, total_tp_gies = sort_fp_tp(total_fp_gies, total_tp_gies)
 
 # === PLOT
 plt.clf()
-plt.plot(total_fp_gies, total_tp_gies, color=ALGS2COLORS['gies'], label='GIES')
+plt.scatter(total_fp_gies, total_tp_gies, marker=ALGS2MARKERS['gies'], label='GIES')
 plt.plot([0, npossible_effects-npositives], [0, npositives], color='grey')
 plt.xlabel('False positives')
 plt.ylabel('True positives')
