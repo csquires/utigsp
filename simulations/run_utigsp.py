@@ -11,6 +11,9 @@ import sys
 sys.path.append('..')
 from config import PROJECT_FOLDER
 from simulations.create_dags_and_samples import save_dags_and_samples, get_dag_samples, get_sample_folder, get_dag_folder
+import json
+
+overwrite = False
 
 
 if __name__ == '__main__':
@@ -67,7 +70,7 @@ if __name__ == '__main__':
         filename = os.path.join(alg_folder, 'nruns=%d,depth=%d,alpha=%.2e,alpha_invariant=%.2e' % (nruns, depth, alpha, alpha_invariant))
 
         # === RUN ALGORITHM
-        if not os.path.exists(filename):
+        if not os.path.exists(filename) or overwrite:
             obs_samples, setting_list, _ = get_dag_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention, dag_num)
 
             if pooled == 'false':
@@ -81,7 +84,7 @@ if __name__ == '__main__':
                 all_samples = np.concatenate((obs_samples, *[setting['samples'] for setting in setting_list]), axis=0)
                 suffstat = dict(C=np.corrcoef(all_samples, rowvar=False), n=nsamples)
 
-            est_dag = unknown_target_igsp(
+            est_dag, learned_intervention_targets = unknown_target_igsp(
                 obs_samples,
                 setting_list,
                 suffstat,
@@ -95,14 +98,17 @@ if __name__ == '__main__':
             )
 
             np.savetxt(filename, est_dag.to_amat())
-            return est_dag
+            json.dump(list(map(list, learned_intervention_targets)), open(filename + '_learned_intervention_targets.json', 'w'))
+            return est_dag, learned_intervention_targets
         else:
-            return cd.DAG.from_amat(np.loadtxt(filename))
+            learned_intervention_targets = json.load(open(filename + '_learned_intervention_targets.json'))
+            return cd.DAG.from_amat(np.loadtxt(filename)), learned_intervention_targets
 
 
     with multiprocessing.Pool(multiprocessing.cpu_count() - 1) as pool:
         dag_nums = list(range(ndags))
-        est_dags = list(tqdm(pool.imap(_run_utigsp, dag_nums), total=ndags))
+        est_dags_and_iv_targets = list(tqdm(pool.imap(_run_utigsp, dag_nums), total=ndags))
+    est_dags, est_interventions_list = zip(*est_dags_and_iv_targets)
 
     # === CREATE FOLDER FOR RESULTS
     dag_str = 'nnodes=%d_nneighbors=%s_ndags=%d' % (nnodes, nneighbors, ndags)
@@ -119,24 +125,44 @@ if __name__ == '__main__':
     shds = [true_dag.shd(est_dag) for true_dag, est_dag in zip(true_dags, est_dags)]
     np.savetxt(os.path.join(result_folder, 'shds.txt'), shds)
 
-    # === SAVE IS-IMEC
+    # === GET LISTS OF KNOWN AND ALL INTERVENTIONS
     def get_interventions(filename):
         known_iv_str, unknown_iv_str = filename.split(';')
         known_ivs = set(map(int, known_iv_str.split('=')[1].split(',')))
         unknown_ivs = set(map(int, known_iv_str.split('=')[1].split(',')))
-        return known_ivs | unknown_ivs
+        return known_ivs, unknown_ivs
 
 
-    intervention_filenames_list = [os.listdir(os.path.join(sample_folder, 'interventional')) for sample_folder in sample_folders]
-    interventions_list = [
-        [get_interventions(filename) for filename in intervention_filenames]
+    intervention_filenames_list = [sorted(os.listdir(os.path.join(sample_folder, 'interventional'))) for sample_folder in sample_folders]
+    known_interventions_list = [
+        [get_interventions(filename)[0] for filename in intervention_filenames]
         for intervention_filenames in intervention_filenames_list
     ]
-    is_imec = [
-        true_dag.markov_equivalent(est_dag, interventions=interventions)
-        for true_dag, est_dag, interventions in zip(true_dags, est_dags, interventions_list)
+    true_interventions_list = [
+        [get_interventions(filename)[0] | get_interventions(filename)[1] for filename in intervention_filenames]
+        for intervention_filenames in intervention_filenames_list
     ]
+
+    # === FIND ESTIMATED PDAGS
+    est_pdags = [
+        dag.interventional_cpdag(
+            [set(est_iv_nodes) | set(known_iv_nodes) for est_iv_nodes, known_iv_nodes in zip(est_ivs, known_ivs)],
+            cpdag=dag.cpdag()
+        )
+        for dag, est_ivs, known_ivs in zip(est_dags, est_interventions_list, known_interventions_list)
+    ]
+
+    # === FIND TRUE PDAGS
+    true_pdags = [
+        true_dag.interventional_cpdag(true_interventions, cpdag=true_dag.cpdag())
+        for true_dag, true_interventions in zip(true_dags, true_interventions_list)
+    ]
+
+    # === COMPARE TRUE PDAGS TO ESTIMATED PDAGS
+    is_imec = [est_pdag == true_pdag for est_pdag, true_pdag in zip(est_pdags, true_pdags)]
     np.savetxt(os.path.join(result_folder, 'imec.txt'), is_imec)
 
+    shds_pdag = [est_pdag.shd(true_pdag) for est_pdag, true_pdag in zip(est_pdags, true_pdags)]
+    np.savetxt(os.path.join(result_folder, 'shds_pdag.txt'), shds_pdag)
 
 

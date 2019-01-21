@@ -81,10 +81,10 @@ def save_dags_and_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_kn
         iv_sample_folder = os.path.join(sample_folder, 'interventional')
         os.makedirs(iv_sample_folder, exist_ok=True)
         np.savetxt(os.path.join(sample_folder, 'observational.txt'), obs_samples)
-        for setting in settings_list:
+        for setting_num, setting in enumerate(settings_list):
             known_iv_str = ','.join(map(str, setting['known_interventions']))
             unknown_iv_str = ','.join(map(str, setting['unknown_interventions']))
-            filename = os.path.join(iv_sample_folder, 'known_ivs=%s;unknown_ivs=%s.txt' % (known_iv_str, unknown_iv_str))
+            filename = os.path.join(iv_sample_folder, '%d_known_ivs=%s;unknown_ivs=%s.txt' % (setting_num, known_iv_str, unknown_iv_str))
             np.savetxt(filename, setting['samples'])
 
 
@@ -95,7 +95,7 @@ def get_dag_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, n
     obs_samples = np.loadtxt(os.path.join(sample_folder, 'observational.txt'))
     sample_dict = {frozenset(): obs_samples}
     setting_list = []
-    for file in os.listdir(iv_sample_folder):
+    for file in sorted(os.listdir(iv_sample_folder)):
         known_ivs = frozenset(map(int, file.split(';')[0].split('=')[1].split(',')))
         iv_samples = np.loadtxt(os.path.join(iv_sample_folder, file))
         sample_dict[known_ivs] = iv_samples

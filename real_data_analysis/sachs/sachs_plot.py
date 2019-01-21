@@ -43,7 +43,7 @@ for file in os.listdir(ESTIMATED_FOLDER):
         dag = cd.DAG.from_amat(amat)
         if file.startswith('utigsp_gauss_ci') and file.endswith('alpha_i=%.2e.txt' % alpha_invariance):
             est_dags_utigsp_gauss_ci.append(dag)
-            alpha = float(re.search('alpha=(\S+),', file).group()[6:-1])  # sorry this is messy
+            alpha = float(file.split(',')[0].split('=')[1][:-4])
             utigsp_gauss_ci_alphas.append(float_format % alpha)
         if file.startswith('igsp_gauss_ci') and file.endswith('alpha_i=%.2e.txt' % alpha_invariance):
             est_dags_igsp_gauss_ci.append(dag)
@@ -87,15 +87,21 @@ utigsp_hsic_df = to_df(est_dags_utigsp_hsic, utigsp_hsic_alphas)
 gies_df = to_df(est_dags_gies)
 icp_df = to_df_icp(est_amats_icp)
 
-
+METHOD = 'gauss_ci'
+if METHOD == 'gauss_ci':
+    igsp_df = igsp_gauss_ci_df
+    utigsp_df = utigsp_gauss_ci_df
+else:
+    igsp_df = igsp_hsic_df
+    utigsp_df = utigsp_hsic_df
 # === PLOT ROC OF DAG ARCS
 plt.clf()
 plt.scatter(gies_df.sort_values(by='fp')['fp'], gies_df.sort_values(by='fp')['tp'], label='GIES', marker=ALGS2MARKERS['gies'])
 plt.scatter(icp_df.sort_values(by='fp')['fp'], icp_df.sort_values(by='fp')['tp'], label='ICP', marker=ALGS2MARKERS['icp'])
-plt.scatter(igsp_gauss_ci_df.sort_values(by='fp')['fp'], igsp_gauss_ci_df.sort_values(by='fp')['tp'], label='IGSP', marker=ALGS2MARKERS['igsp'])
+plt.scatter(igsp_df.sort_values(by='fp')['fp'], igsp_df.sort_values(by='fp')['tp'], label='IGSP', marker=ALGS2MARKERS['igsp'])
 # for _, row in igsp_hsic_df.iterrows():
 #     plt.annotate(row['label'], (row['fp'], row['tp']))
-plt.scatter(utigsp_gauss_ci_df.sort_values(by='fp')['fp'], utigsp_gauss_ci_df.sort_values(by='fp')['tp'], label='UTIGSP', marker=ALGS2MARKERS['utigsp'])
+plt.scatter(utigsp_df.sort_values(by='fp')['fp'], utigsp_df.sort_values(by='fp')['tp'], label='UTIGSP', marker=ALGS2MARKERS['utigsp'])
 # plt.plot([0, npossible_arcs - len(true_dag.arcs)], [0, len(true_dag.arcs)], color='grey')
 plt.xlabel('False positives')
 plt.ylabel('True positives')
@@ -117,14 +123,14 @@ plt.scatter(
     marker=ALGS2MARKERS['icp']
 )
 plt.scatter(
-    igsp_hsic_df.sort_values(by='fp_skel')['fp_skel'],
-    igsp_hsic_df.sort_values(by='fp_skel')['tp_skel'],
+    igsp_df.sort_values(by='fp_skel')['fp_skel'],
+    igsp_df.sort_values(by='fp_skel')['tp_skel'],
     label='IGSP',
     marker=ALGS2MARKERS['igsp']
 )
 plt.scatter(
-    utigsp_hsic_df.sort_values(by='fp_skel')['fp_skel'],
-    utigsp_hsic_df.sort_values(by='fp_skel')['tp_skel'],
+    utigsp_df.sort_values(by='fp_skel')['fp_skel'],
+    utigsp_df.sort_values(by='fp_skel')['tp_skel'],
     label='UTIGSP',
     marker=ALGS2MARKERS['utigsp']
 )

@@ -26,7 +26,8 @@ setting_list = [
 nnodes = obs_samples.shape[1]
 np.random.seed(1729)
 random.seed(1729)
-starting_permutations = [random.sample(list(range(nnodes)), nnodes) for i in range(10)]
+# starting_permutations = [random.sample(list(range(nnodes)), nnodes) for i in range(10)]
+starting_permutations = [true_dag.topological_sort()]
 # === RUN IGSP
 igsp_dag = igsp(
     sample_dict,
