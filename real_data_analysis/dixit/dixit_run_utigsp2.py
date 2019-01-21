@@ -41,7 +41,6 @@ if __name__ == '__main__':
                     alpha=alpha,
                     nruns=10,
                     alpha_invariance=alpha_invariance,
-                    verbose=True
                 )
             elif ci_test == 'hsic':
                 os.system('touch hsic_utigsp_%d.tst' % excluded)
@@ -55,7 +54,6 @@ if __name__ == '__main__':
                     alpha=alpha,
                     nruns=10,
                     alpha_invariance=alpha_invariance,
-                    verbose=True
                 )
             else:
                 raise ValueError
