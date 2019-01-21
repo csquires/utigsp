@@ -17,7 +17,8 @@ npositives = sum(len(effects) for iv_nodes, effects in ivs2significant_effects.i
 folder1 = os.path.join(ESTIMATED_FOLDER, 'exclude_0')
 n_gies = sum(file.startswith('gies') for file in os.listdir(folder1))
 n_igsp = sum(file.startswith('igsp') for file in os.listdir(folder1))
-n_utigsp = sum(file.startswith('utigsp') for file in os.listdir(folder1))
+# n_utigsp = sum(file.startswith('utigsp') for file in os.listdir(folder1))
+n_utigsp = 3
 
 # === TOTAL TRUE AND FALSE POSITIVES ACROSS ALL INTERVENTIONS
 total_tp_gies, total_fp_gies = np.zeros(n_gies), np.zeros(n_gies)
@@ -32,7 +33,7 @@ for excluded_node in range(24):
         est_dags = [
             cd.DAG.from_amat(np.loadtxt(os.path.join(folder, file)))
             for file in os.listdir(folder)
-            if file.startswith(alg)
+            if file.startswith(alg) and not 'alpha=1.00e-01' in file
         ]
         # print(os.listdir(folder))
         est_children_by_dag = [d.children_of(excluded_node) for d in est_dags]
@@ -47,6 +48,10 @@ for excluded_node in range(24):
     total_tp_gies += tp_gies
     total_fp_gies += fp_gies
 
+    tp_utigsp, fp_utigsp = get_tp_fp('utigsp')
+    total_tp_utigsp += tp_utigsp
+    total_fp_utigsp += fp_utigsp
+
 
 # === SORT IN ASCENDING ORDER
 def sort_fp_tp(fps, tps):
@@ -55,10 +60,12 @@ def sort_fp_tp(fps, tps):
 
 
 total_fp_gies, total_tp_gies = sort_fp_tp(total_fp_gies, total_tp_gies)
+total_fp_utigsp, total_tp_utigsp = sort_fp_tp(total_fp_utigsp, total_tp_utigsp)
 
 # === PLOT
 plt.clf()
 plt.scatter(total_fp_gies, total_tp_gies, marker=ALGS2MARKERS['gies'], label='GIES')
+plt.scatter(total_fp_utigsp, total_tp_utigsp, marker=ALGS2MARKERS['utigsp'], label='UTIGSP')
 plt.plot([0, npossible_effects-npositives], [0, npositives], color='grey')
 plt.xlabel('False positives')
 plt.ylabel('True positives')
