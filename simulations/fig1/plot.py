@@ -46,10 +46,10 @@ for nsamples, nsettings, (num_known, num_unknown) in itr.product(nsamples_list, 
     shd_array_gies.loc[loc] = np.loadtxt(os.path.join(gies_results_folder, 'shds_pdag.txt'))
     imec_array_gies.loc[loc] = np.loadtxt(os.path.join(gies_results_folder, 'imec.txt'))
 
-    # === LOAD ICP RESULTS
-    icp_results_folder = os.path.join(PROJECT_FOLDER, 'simulations', 'results', dag_str, setting_str, 'icp', 'alpha=%.2e' % .01)
-    shd_array_icp.loc[loc] = np.loadtxt(os.path.join(icp_results_folder, 'shds_pdag.txt'))
-    imec_array_icp.loc[loc] = np.loadtxt(os.path.join(icp_results_folder, 'imec.txt'))
+    # # === LOAD ICP RESULTS
+    # icp_results_folder = os.path.join(PROJECT_FOLDER, 'simulations', 'results', dag_str, setting_str, 'icp', 'alpha=%.2e' % .01)
+    # shd_array_icp.loc[loc] = np.loadtxt(os.path.join(icp_results_folder, 'shds_pdag.txt'))
+    # imec_array_icp.loc[loc] = np.loadtxt(os.path.join(icp_results_folder, 'imec.txt'))
 
     # === LOAD ICP RESULTS
     igsp_results_folder = os.path.join(PROJECT_FOLDER, 'simulations', 'results', dag_str, setting_str, 'igsp', 'nruns=10,depth=4,alpha=1.00e-05,alpha_invariant=1.00e-05,pool=auto')
@@ -68,7 +68,7 @@ marker_handles = create_marker_handles([0, 1, 2, 3])
 plt.clf()
 for num_unknown, marker in zip([0, 1, 2, 3], MARKERS):
     plt.plot(nsamples_list, shd_array_gies.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['gies'], marker=marker)
-    plt.plot(nsamples_list, shd_array_icp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['icp'], marker=marker)
+    # plt.plot(nsamples_list, shd_array_icp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['icp'], marker=marker)
     plt.plot(nsamples_list, shd_array_igsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['igsp'], marker=marker)
     plt.plot(nsamples_list, shd_array_utigsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['utigsp'], marker=marker)
 plt.xticks(nsamples_list)
@@ -84,7 +84,7 @@ plt.savefig(os.path.join(PLT_FOLDER, 'shd.png'))
 plt.clf()
 for num_unknown, marker in zip([0, 1, 2, 3], MARKERS):
     plt.plot(nsamples_list, imec_array_gies.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['gies'], marker=marker)
-    plt.plot(nsamples_list, imec_array_icp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['icp'], marker=marker)
+    # plt.plot(nsamples_list, imec_array_icp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['icp'], marker=marker)
     plt.plot(nsamples_list, imec_array_igsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['igsp'], marker=marker)
     plt.plot(nsamples_list, imec_array_utigsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['utigsp'], marker=marker)
 plt.xticks(nsamples_list)

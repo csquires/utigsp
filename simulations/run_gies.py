@@ -123,11 +123,15 @@ if __name__ == '__main__':
     ]
 
     # === COMPARE TRUE PDAGS TO ESTIMATED PDAGS
-    is_imec = [est_pdag == true_pdag for est_pdag, true_pdag in zip(est_pdags, true_pdags)]
-    np.savetxt(os.path.join(result_folder, 'imec.txt'), is_imec)
+    same_icpdag = [est_pdag == true_pdag for est_pdag, true_pdag in zip(est_pdags, true_pdags)]
+    np.savetxt(os.path.join(result_folder, 'same_icpdag.txt'), same_icpdag)
 
     shds_pdag = [est_pdag.shd(true_pdag) for est_pdag, true_pdag in zip(est_pdags, true_pdags)]
     np.savetxt(os.path.join(result_folder, 'shds_pdag.txt'), shds_pdag)
 
-
+    is_imec = [
+        true_dag.markov_equivalent(est_dag, interventions=true_interventions)
+        for true_dag, est_dag, true_interventions in zip(true_dags, est_dags, true_interventions_list)
+    ]
+    np.savetxt(os.path.join(result_folder, 'imec.txt'), is_imec)
 

@@ -4,6 +4,7 @@ import itertools as itr
 nnodes = 10
 nneighbors = 1.5
 ndags = 50
+# nsamples_list = [100, 300, 500, 1000]
 nsamples_list = [100, 300, 500]
 nsettings_list = [5]
 ntargets_list = [(1, 0), (1, 1), (1, 2), (1, 3)]
@@ -24,3 +25,4 @@ if __name__ == '__main__':
         os.system('cd .. && cat slurm_template.sh tmp.sh > job.sh')
         os.system('cd .. && rm tmp.sh')
         os.system('cd .. && sbatch job.sh')
+        # os.system(f'cd .. && {full_command}')
