@@ -106,21 +106,60 @@ if __name__ == '__main__':
     # === SAVE IS-IMEC
     def get_interventions(filename):
         known_iv_str, unknown_iv_str = filename.split(';')
+        unknown_iv_str = unknown_iv_str.split('=')[1][:-4]
         known_ivs = set(map(int, known_iv_str.split('=')[1].split(',')))
         unknown_ivs = set(map(int, unknown_iv_str.split(','))) if unknown_iv_str != '' else set()
         return known_ivs, unknown_ivs
 
 
-    intervention_filenames_list = [os.listdir(os.path.join(sample_folder, 'interventional')) for sample_folder in
-                                   sample_folders]
-    interventions_list = [
-        [get_interventions(filename) for filename in intervention_filenames]
+    intervention_filenames_list = [sorted(os.listdir(os.path.join(sample_folder, 'interventional'))) for sample_folder in sample_folders]
+    known_interventions_list = [
+        [get_interventions(filename)[0] for filename in intervention_filenames]
         for intervention_filenames in intervention_filenames_list
     ]
-    is_imec = [
-        true_dag.markov_equivalent(est_dag, interventions=interventions) if est_dag is not None else False
-        for true_dag, est_dag, interventions in zip(true_dags, est_dags, interventions_list)
+    true_interventions_list = [
+        [get_interventions(filename)[0] | get_interventions(filename)[1] for filename in intervention_filenames]
+        for intervention_filenames in intervention_filenames_list
     ]
+
+    # === FIND ESTIMATED PDAGS
+    est_pdags = [
+        dag.interventional_cpdag(known_ivs, cpdag=dag.cpdag()) if dag is not None else None
+        for dag, known_ivs in zip(est_dags, known_interventions_list)
+    ]
+
+    # === FIND TRUE PDAGS
+    true_pdags = [
+        true_dag.interventional_cpdag(true_interventions, cpdag=true_dag.cpdag())
+        for true_dag, true_interventions in zip(true_dags, true_interventions_list)
+    ]
+
+    # === COMPARE TRUE PDAGS TO ESTIMATED PDAGS
+    same_icpdag = [
+        est_pdag == true_pdag if est_pdag is not None else False
+        for est_pdag, true_pdag in zip(est_pdags, true_pdags)
+    ]
+    print('same icpdag')
+    print(same_icpdag)
+    np.savetxt(os.path.join(result_folder, 'same_icpdag.txt'), same_icpdag)
+
+    shds_pdag = [
+        utils.shd_mat(est_pdag.to_amat(list(range(nnodes)), mode='numpy')[0], true_pdag.to_amat(list(range(nnodes)), mode='numpy')[0])
+        if est_pdag is not None
+        else utils.shd_mat(est_amat, true_pdag.to_amat(list(range(nnodes)), mode='numpy')[0])
+        for est_pdag, est_amat, true_pdag
+        in zip(est_pdags, est_amats, true_pdags)
+    ]
+    print('shds pdag')
+    print(shds_pdag)
+    np.savetxt(os.path.join(result_folder, 'shds_pdag.txt'), shds_pdag)
+
+    is_imec = [
+        true_dag.markov_equivalent(est_dag, interventions=true_interventions) if est_dag is not None else False
+        for true_dag, est_dag, true_interventions in zip(true_dags, est_dags, true_interventions_list)
+    ]
+    print('is imec')
+    print(is_imec)
     np.savetxt(os.path.join(result_folder, 'imec.txt'), is_imec)
 
 

@@ -109,7 +109,7 @@ else:
 # === PLOT ROC OF DAG ARCS
 plt.clf()
 plt.scatter(utigsp_df.sort_values(by='fp')['fp'], utigsp_df.sort_values(by='fp')['tp'], label='UT-IGSP', marker=ALGS2MARKERS['utigsp'])
-plt.scatter(utigsp_gauss_ci_unknown_df.sort_values(by='fp')['fp'], utigsp_gauss_ci_unknown_df.sort_values(by='fp')['tp'], label='UT-IGSP r', marker=ALGS2MARKERS['icp'])
+plt.scatter(utigsp_gauss_ci_unknown_df.sort_values(by='fp')['fp'], utigsp_gauss_ci_unknown_df.sort_values(by='fp')['tp'], label='UT-IGSP*', marker=ALGS2MARKERS['icp'])
 plt.scatter(igsp_df.sort_values(by='fp')['fp'], igsp_df.sort_values(by='fp')['tp'], label='IGSP', marker=ALGS2MARKERS['igsp'])
 plt.scatter(gies_df.sort_values(by='fp')['fp'], gies_df.sort_values(by='fp')['tp'], label='GIES', marker=ALGS2MARKERS['gies'])
 # plt.scatter(icp_df.sort_values(by='fp')['fp'], icp_df.sort_values(by='fp')['tp'], label='ICP', marker=ALGS2MARKERS['icp'])
@@ -139,7 +139,7 @@ plt.scatter(
 plt.scatter(
     utigsp_gauss_ci_unknown_df.sort_values(by='fp_skel')['fp_skel'],
     utigsp_gauss_ci_unknown_df.sort_values(by='fp_skel')['tp_skel'],
-    label='UT-IGSP r',
+    label='UT-IGSP*',
     marker=ALGS2MARKERS['icp']
 )
 plt.scatter(

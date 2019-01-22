@@ -93,68 +93,79 @@ marker_handles = create_marker_handles([0, 1, 2, 3])
 
 # === PLOT SHDS
 plt.clf()
-for num_unknown, marker in zip([0, 1, 2, 3], MARKERS):
-    plt.plot(nsamples_list, shd_array_gies.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['gies'], marker=marker)
-    # plt.plot(nsamples_list, shd_array_icp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['icp'], marker=marker)
-    plt.plot(nsamples_list, shd_array_igsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['igsp'], marker=marker)
-    plt.plot(nsamples_list, shd_array_utigsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['utigsp'], marker=marker)
-plt.xticks(nsamples_list)
-plt.xlabel('Number of samples')
-plt.ylabel('SHD')
-plt.legend(handles=[
-    *marker_handles,
-    *ALG_HANDLES
-])
-plt.ylim([0, 8])
+fig, axes = plt.subplots(1, 4, sharey=True)
+for num_unknown, ax in zip([0, 1, 2, 3], axes):
+    ax.plot(nsamples_list, shd_array_gies.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['gies'])
+    ax.plot(nsamples_list, shd_array_icp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['icp'])
+    ax.plot(nsamples_list, shd_array_igsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['igsp'])
+    ax.plot(nsamples_list, shd_array_utigsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['utigsp'])
+    ax.set_xlabel('$\ell=%d$' % num_unknown)
+# plt.xlabel('Number of samples')
+axes[0].set_ylabel('Average SHD')
+axes[0].legend(handles=[
+    Patch(color=ALGS2COLORS['gies'], label='GIES'),
+    Patch(color=ALGS2COLORS['icp'], label='ICP'),
+    Patch(color=ALGS2COLORS['igsp'], label='IGSP'),
+    Patch(color=ALGS2COLORS['utigsp'], label='UT-IGSP'),
+], loc='upper center')
 plt.savefig(os.path.join(PLT_FOLDER, 'shd.png'))
 
 # === PLOT SHDS OF I-CPDAGS
 plt.clf()
-for num_unknown, marker in zip([0, 1, 2, 3], MARKERS):
-    plt.plot(nsamples_list, shd_icpdag_array_gies.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['gies'], marker=marker)
-    # plt.plot(nsamples_list, shd_icpdag_array_icp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['icp'], marker=marker)
-    plt.plot(nsamples_list, shd_icpdag_array_igsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['igsp'], marker=marker)
-    plt.plot(nsamples_list, shd_icpdag_array_utigsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['utigsp'], marker=marker)
-plt.xticks(nsamples_list)
-plt.xlabel('Number of samples')
-plt.ylabel('SHD')
-plt.legend(handles=[
-    *marker_handles,
-    *ALG_HANDLES
-])
-plt.ylim([0, 8])
+fig, axes = plt.subplots(1, 4, sharey=True)
+for num_unknown, ax in zip([0, 1, 2, 3], axes):
+    ax.plot(nsamples_list, shd_icpdag_array_gies.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['gies'])
+    ax.plot(nsamples_list, shd_icpdag_array_icp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['icp'])
+    ax.plot(nsamples_list, shd_icpdag_array_igsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['igsp'])
+    ax.plot(nsamples_list, shd_icpdag_array_utigsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['utigsp'])
+    ax.set_xticks(nsamples_list)
+    ax.set_xlabel('$\ell=%d$' % num_unknown)
+# fig.xlabel('Number of samples')
+axes[0].set_ylabel('Average SHD')
+axes[0].legend(handles=[
+    Patch(color=ALGS2COLORS['gies'], label='GIES'),
+    Patch(color=ALGS2COLORS['icp'], label='ICP'),
+    Patch(color=ALGS2COLORS['igsp'], label='IGSP'),
+    Patch(color=ALGS2COLORS['utigsp'], label='UT-IGSP'),
+], loc='upper center')
 plt.savefig(os.path.join(PLT_FOLDER, 'shd_icpdag.png'))
 
 # === PLOT PROPORTIONS CORRECT I-MEC
 plt.clf()
-for num_unknown, marker in zip([0, 1, 2, 3], MARKERS):
-    plt.plot(nsamples_list, imec_array_gies.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['gies'], marker=marker)
-    # plt.plot(nsamples_list, imec_array_icp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['icp'], marker=marker)
-    plt.plot(nsamples_list, imec_array_igsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['igsp'], marker=marker)
-    plt.plot(nsamples_list, imec_array_utigsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['utigsp'], marker=marker)
-plt.xticks(nsamples_list)
-plt.xlabel('Number of samples')
-plt.ylabel('Proportion in the true I-MEC')
-plt.legend(handles=[
-    *marker_handles,
-    *ALG_HANDLES
-])
+fig, axes = plt.subplots(1, 4, sharey=True)
+for num_unknown, ax in zip([0, 1, 2, 3], axes):
+    ax.plot(nsamples_list, imec_array_gies.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['gies'])
+    ax.plot(nsamples_list, imec_array_icp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['icp'])
+    ax.plot(nsamples_list, imec_array_igsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['igsp'])
+    ax.plot(nsamples_list, imec_array_utigsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['utigsp'])
+    ax.set_xticks(nsamples_list)
+    ax.set_xlabel('$\ell=%d$' % num_unknown)
+axes[0].set_ylabel('Proportion in the true I-MEC')
+axes[-1].legend(handles=[
+    Patch(color=ALGS2COLORS['gies'], label='GIES'),
+    Patch(color=ALGS2COLORS['icp'], label='ICP'),
+    Patch(color=ALGS2COLORS['igsp'], label='IGSP'),
+    Patch(color=ALGS2COLORS['utigsp'], label='UT-IGSP'),
+], loc='upper center')
 plt.savefig(os.path.join(PLT_FOLDER, 'correct_imec.png'))
 
 # === PLOT PROPORTION SAME ICPDAG
 plt.clf()
-for num_unknown, marker in zip([0, 1, 2, 3], MARKERS):
-    plt.plot(nsamples_list, consistent_array_gies.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['gies'], marker=marker)
-    # plt.plot(nsamples_list, consistent_array_icp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['icp'], marker=marker)
-    plt.plot(nsamples_list, consistent_array_igsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['igsp'], marker=marker)
-    plt.plot(nsamples_list, consistent_array_utigsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['utigsp'], marker=marker)
-plt.xticks(nsamples_list)
-plt.xlabel('Number of samples')
-plt.ylabel('Proportion consistently estimated I-CPDAGs')
-plt.legend(handles=[
-    *marker_handles,
-    *ALG_HANDLES
-])
+fig, axes = plt.subplots(1, 4, sharey=True)
+for num_unknown, ax in zip([0, 1, 2, 3], axes):
+    ax.plot(nsamples_list, consistent_array_gies.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['gies'])
+    ax.plot(nsamples_list, consistent_array_icp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['icp'])
+    ax.plot(nsamples_list, consistent_array_igsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['igsp'])
+    ax.plot(nsamples_list, consistent_array_utigsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['utigsp'])
+    ax.set_xticks(nsamples_list)
+    ax.set_xlabel('$\ell=%d$' % num_unknown)
+axes[0].set_ylabel('Proportion consistently estimated I-CPDAGs')
+axes[-1].legend(handles=[
+    Patch(color=ALGS2COLORS['gies'], label='GIES'),
+    Patch(color=ALGS2COLORS['icp'], label='ICP'),
+    Patch(color=ALGS2COLORS['igsp'], label='IGSP'),
+    Patch(color=ALGS2COLORS['utigsp'], label='UT-IGSP'),
+], loc='upper center')
 plt.savefig(os.path.join(PLT_FOLDER, 'consistent_icpdag.png'))
 
 # === PLOT DIFFERENCE IN NUMBER OF INTERVENTION TARGETS RECOVERED
