@@ -121,8 +121,9 @@ if __name__ == '__main__':
     # === GET LISTS OF KNOWN AND ALL INTERVENTIONS
     def get_interventions(filename):
         known_iv_str, unknown_iv_str = filename.split(';')
+        unknown_iv_str = unknown_iv_str.split('=')[1][:-4]
         known_ivs = set(map(int, known_iv_str.split('=')[1].split(',')))
-        unknown_ivs = set(map(int, unknown_iv_str.split('=')[1][:-4].split(','))) if unknown_iv_str != '' else set()
+        unknown_ivs = set(map(int, unknown_iv_str.split(','))) if unknown_iv_str != '' else set()
         return known_ivs, unknown_ivs
 
     intervention_filenames_list = [sorted(os.listdir(os.path.join(sample_folder, 'interventional'))) for sample_folder in sample_folders]
