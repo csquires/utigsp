@@ -97,7 +97,7 @@ utigsp_hsic_df = to_df(est_dags_utigsp_hsic, utigsp_hsic_alphas)
 gies_df = to_df(est_dags_gies, gies_lambdas)
 icp_df = to_df_icp(est_amats_icp)
 
-METHOD = 'gauss_ci'
+METHOD = 'hsic'
 if METHOD == 'gauss_ci':
     igsp_df = igsp_gauss_ci_df
     utigsp_df = utigsp_gauss_ci_df

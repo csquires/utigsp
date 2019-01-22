@@ -74,7 +74,7 @@ for alpha in tqdm([2e-1, 4e-2]):
     alpha_invariance = 1e-5
     filename = os.path.join(ESTIMATED_FOLDER, 'utigsp_hsic_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_invariance))
     if not os.path.exists(filename):
-        est_dag = unknown_target_igsp(
+        est_dag, learned_interventions = unknown_target_igsp(
             sample_dict[frozenset()],
             setting_list,
             sample_dict[frozenset()],
