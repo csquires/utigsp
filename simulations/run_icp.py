@@ -107,8 +107,8 @@ if __name__ == '__main__':
     def get_interventions(filename):
         known_iv_str, unknown_iv_str = filename.split(';')
         known_ivs = set(map(int, known_iv_str.split('=')[1].split(',')))
-        unknown_ivs = set(map(int, known_iv_str.split('=')[1].split(',')))
-        return known_ivs | unknown_ivs
+        unknown_ivs = set(map(int, unknown_iv_str.split('=')[1][:-4].split(',')))
+        return known_ivs, unknown_ivs
 
 
     intervention_filenames_list = [os.listdir(os.path.join(sample_folder, 'interventional')) for sample_folder in
