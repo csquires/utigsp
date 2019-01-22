@@ -34,6 +34,7 @@ igsp_gauss_ci_alphas = []
 igsp_hsic_alphas = []
 utigsp_gauss_ci_alphas = []
 utigsp_hsic_alphas = []
+gies_lambdas = []
 float_format = '%s'
 for file in os.listdir(ESTIMATED_FOLDER):
     amat = np.loadtxt(os.path.join(ESTIMATED_FOLDER, file))
@@ -59,6 +60,8 @@ for file in os.listdir(ESTIMATED_FOLDER):
             igsp_hsic_alphas.append(float_format % alpha)
         if file.startswith('gies'):
             est_dags_gies.append(dag)
+            lam = float(file[len('gies_lambda='):-4])
+            gies_lambdas.append(float_format % lam)
 
 
 # === CREATE DATAFRAMES
@@ -84,7 +87,7 @@ igsp_gauss_ci_df = to_df(est_dags_igsp_gauss_ci, igsp_gauss_ci_alphas)
 utigsp_gauss_ci_df = to_df(est_dags_utigsp_gauss_ci, utigsp_gauss_ci_alphas)
 igsp_hsic_df = to_df(est_dags_igsp_hsic, igsp_hsic_alphas)
 utigsp_hsic_df = to_df(est_dags_utigsp_hsic, utigsp_hsic_alphas)
-gies_df = to_df(est_dags_gies)
+gies_df = to_df(est_dags_gies, gies_lambdas)
 icp_df = to_df_icp(est_amats_icp)
 
 METHOD = 'gauss_ci'
