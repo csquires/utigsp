@@ -6,7 +6,7 @@ import causaldag as cd
 import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
-from plot_config import ALGS2MARKERS
+from plot_config import ALGS2MARKERS, ALGS2COLORS
 import seaborn as sns
 import re
 sns.set()
@@ -108,10 +108,30 @@ else:
     utigsp_df = utigsp_hsic_df
 # === PLOT ROC OF DAG ARCS
 plt.clf()
-plt.scatter(utigsp_df.sort_values(by='fp')['fp'], utigsp_df.sort_values(by='fp')['tp'], label='UT-IGSP', marker=ALGS2MARKERS['utigsp'])
-plt.scatter(utigsp_gauss_ci_unknown_df.sort_values(by='fp')['fp'], utigsp_gauss_ci_unknown_df.sort_values(by='fp')['tp'], label='UT-IGSP*', marker=ALGS2MARKERS['icp'])
-plt.scatter(igsp_df.sort_values(by='fp')['fp'], igsp_df.sort_values(by='fp')['tp'], label='IGSP', marker=ALGS2MARKERS['igsp'])
-plt.scatter(gies_df.sort_values(by='fp')['fp'], gies_df.sort_values(by='fp')['tp'], label='GIES', marker=ALGS2MARKERS['gies'])
+plt.scatter(
+    utigsp_df.sort_values(by='fp')['fp'],
+    utigsp_df.sort_values(by='fp')['tp'],
+    label='UT-IGSP',
+    marker=ALGS2MARKERS['utigsp'],
+    color=ALGS2COLORS['utigsp'])
+plt.scatter(
+    utigsp_gauss_ci_unknown_df.sort_values(by='fp')['fp'],
+    utigsp_gauss_ci_unknown_df.sort_values(by='fp')['tp'],
+    label='UT-IGSP*',
+    marker=ALGS2MARKERS['icp'],
+    color='r')
+plt.scatter(
+    igsp_df.sort_values(by='fp')['fp'],
+    igsp_df.sort_values(by='fp')['tp'],
+    label='IGSP',
+    marker=ALGS2MARKERS['igsp'],
+    color=ALGS2COLORS['igsp'])
+plt.scatter(
+    gies_df.sort_values(by='fp')['fp'],
+    gies_df.sort_values(by='fp')['tp'],
+    label='GIES',
+    marker=ALGS2MARKERS['gies'],
+    color=ALGS2COLORS['gies'])
 # plt.scatter(icp_df.sort_values(by='fp')['fp'], icp_df.sort_values(by='fp')['tp'], label='ICP', marker=ALGS2MARKERS['icp'])
 # for _, row in igsp_hsic_df.iterrows():
 #     plt.annotate(row['label'], (row['fp'], row['tp']))
@@ -134,25 +154,29 @@ plt.scatter(
     utigsp_df.sort_values(by='fp_skel')['fp_skel'],
     utigsp_df.sort_values(by='fp_skel')['tp_skel'],
     label='UT-IGSP',
-    marker=ALGS2MARKERS['utigsp']
+    marker=ALGS2MARKERS['utigsp'],
+    color=ALGS2COLORS['utigsp']
 )
 plt.scatter(
     utigsp_gauss_ci_unknown_df.sort_values(by='fp_skel')['fp_skel'],
     utigsp_gauss_ci_unknown_df.sort_values(by='fp_skel')['tp_skel'],
     label='UT-IGSP*',
-    marker=ALGS2MARKERS['icp']
+    marker=ALGS2MARKERS['icp'],
+    color='r'
 )
 plt.scatter(
     igsp_df.sort_values(by='fp_skel')['fp_skel'],
     igsp_df.sort_values(by='fp_skel')['tp_skel'],
     label='IGSP',
-    marker=ALGS2MARKERS['igsp']
+    marker=ALGS2MARKERS['igsp'],
+    color=ALGS2COLORS['igsp']
 )
 plt.scatter(
     gies_df.sort_values(by='fp_skel')['fp_skel'],
     gies_df.sort_values(by='fp_skel')['tp_skel'],
     label='GIES',
-    marker=ALGS2MARKERS['gies']
+    marker=ALGS2MARKERS['gies'],
+    color=ALGS2COLORS['gies']
 )
 # for _, row in igsp_hsic_df.iterrows():
 #     plt.annotate(row['label'], (row['fp_skel'], row['tp_skel']))

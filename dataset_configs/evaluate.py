@@ -76,6 +76,8 @@ def get_shd_array(dag_config, sample_config, alg_config, dag_setting2graph):
                         shd_array_dict[alg_setting.alg].loc[loc] = utils.shd_mat(true_dag.to_amat(mode='numpy')[0], estimated_dag)
                     else:
                         shd_array_dict[alg_setting.alg].loc[loc] = true_dag.shd(estimated_dag)
+                        print(interventions)
+                        print(true_dag.markov_equivalent(estimated_dag, interventions=interventions))
                         imec_array_dict[alg_setting.alg].loc[loc] = true_dag.markov_equivalent(estimated_dag, interventions=interventions)
 
     return shd_array_dict, imec_array_dict
