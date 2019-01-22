@@ -80,6 +80,7 @@ for nsamples, nsettings, (num_known, num_unknown) in itr.product(nsamples_list, 
     # === LOAD UTIGSP RESULTS
     utigsp_results_folder = os.path.join(PROJECT_FOLDER, 'simulations', 'results', dag_str, setting_str, 'utigsp', 'nruns=10,depth=4,alpha=1.00e-05,alpha_invariant=1.00e-02,pool=auto')
     utigsp_exists = os.path.exists(utigsp_results_folder)
+    utigsp_exists = True
     shd_array_utigsp.loc[loc] = np.loadtxt(os.path.join(utigsp_results_folder, 'shds.txt')) if utigsp_exists else None
     imec_array_utigsp.loc[loc] = np.loadtxt(os.path.join(utigsp_results_folder, 'imec.txt')) if utigsp_exists else None
     shd_icpdag_array_utigsp.loc[loc] = np.loadtxt(os.path.join(utigsp_results_folder, 'shds_pdag.txt')) if utigsp_exists else None
@@ -107,6 +108,12 @@ plt.legend(handles=[
 ])
 plt.ylim([0, 8])
 plt.savefig(os.path.join(PLT_FOLDER, 'shd.png'))
+
+# === RANDOM
+plt.clf()
+print(shd_array_utigsp.sel(nsamples=500, num_unknown=3).mean(dim='dag'))
+plt.boxplot(shd_array_utigsp.sel(nsamples=500, num_unknown=3))
+plt.savefig(os.path.join(PLT_FOLDER, 'boxplot.png'))
 
 # === PLOT SHDS OF I-CPDAGS
 plt.clf()

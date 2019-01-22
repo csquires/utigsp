@@ -12,6 +12,8 @@ sys.path.append('..')
 from config import PROJECT_FOLDER
 from simulations.create_dags_and_samples import save_dags_and_samples, get_dag_samples, get_sample_folder, get_dag_folder
 
+overwrite = True
+
 
 if __name__ == '__main__':
     # === DEFINE PARSE
@@ -67,7 +69,7 @@ if __name__ == '__main__':
         filename = os.path.join(alg_folder, 'nruns=%d,depth=%d,alpha=%.2e,alpha_invariant=%.2e' % (nruns, depth, alpha, alpha_invariant))
 
         # === RUN ALGORITHM
-        if not os.path.exists(filename):
+        if not os.path.exists(filename) or overwrite:
             obs_samples, setting_list, sample_dict = get_dag_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention, dag_num)
 
             if pooled == 'false':
@@ -75,7 +77,7 @@ if __name__ == '__main__':
             elif pooled == 'true':
                 all_samples = np.concatenate((obs_samples, *[setting['samples'] for setting in setting_list]), axis=0)
                 suffstat = dict(C=np.corrcoef(all_samples, rowvar=False), n=nsamples)
-            elif nsamples <= 300:
+            elif nsamples > 300:
                 suffstat = dict(C=np.corrcoef(obs_samples, rowvar=False), n=nsamples)
             else:
                 all_samples = np.concatenate((obs_samples, *[setting['samples'] for setting in setting_list]), axis=0)

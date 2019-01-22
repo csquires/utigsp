@@ -22,6 +22,9 @@ for file in os.listdir(ESTIMATED_FOLDER):
         learned_interventions = json.load(open(os.path.join(ESTIMATED_FOLDER, file)))
         false_positives = [set(iv_nodes) - true_iv_nodes for iv_nodes, true_iv_nodes in zip(learned_interventions, intervention_targets)]
         true_positives = [set(iv_nodes) & true_iv_nodes for iv_nodes, true_iv_nodes in zip(learned_interventions, intervention_targets)]
+        print(file)
+        print(false_positives)
+        print(true_positives)
         fp_tp_list.append((sum(map(len, false_positives)), sum(map(len, true_positives))))
 fp_tp_list = sorted(fp_tp_list)
 

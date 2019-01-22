@@ -14,7 +14,7 @@ from simulations.create_dags_and_samples import save_dags_and_samples, get_dag_s
 import json
 from pprint import pprint
 
-overwrite = False
+overwrite = True
 
 
 if __name__ == '__main__':
@@ -79,7 +79,7 @@ if __name__ == '__main__':
             elif pooled == 'true':
                 all_samples = np.concatenate((obs_samples, *[setting['samples'] for setting in setting_list]), axis=0)
                 suffstat = dict(C=np.corrcoef(all_samples, rowvar=False), n=nsamples)
-            elif nsamples <= 300:
+            elif nsamples > 300:
                 suffstat = dict(C=np.corrcoef(obs_samples, rowvar=False), n=nsamples)
             else:
                 all_samples = np.concatenate((obs_samples, *[setting['samples'] for setting in setting_list]), axis=0)
