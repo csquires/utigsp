@@ -18,12 +18,12 @@ npossible = 5*11
 
 fp_tp_list = []
 for file in os.listdir(ESTIMATED_FOLDER):
-    if file.startswith('learned_interventions'):
+    if file.startswith('learned_interventions') and 'alpha=3.00e-01' in file:
         learned_interventions = json.load(open(os.path.join(ESTIMATED_FOLDER, file)))
         false_positives = [set(iv_nodes) - true_iv_nodes for iv_nodes, true_iv_nodes in zip(learned_interventions, intervention_targets)]
         true_positives = [set(iv_nodes) & true_iv_nodes for iv_nodes, true_iv_nodes in zip(learned_interventions, intervention_targets)]
         fp_tp_list.append((sum(map(len, false_positives)), sum(map(len, true_positives))))
-tp_tp_list = sorted(fp_tp_list)
+fp_tp_list = sorted(fp_tp_list)
 
 plt.clf()
 plt.plot(*zip(*fp_tp_list), label='UT-IGSP')

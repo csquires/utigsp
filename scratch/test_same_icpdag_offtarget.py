@@ -6,8 +6,8 @@ np.random.seed(1729)
 random.seed(1729)
 
 num_known = 1
-num_unknown = 3
-nsettings = 3
+num_unknown = 5
+nsettings = 2
 ndags = 1000
 nnodes = 20
 nodes = set(range(nnodes))

@@ -10,6 +10,11 @@ import itertools as itr
 import utils
 from plot_config import ALGS2COLORS, MARKERS, create_marker_handles, ALG_HANDLES
 from matplotlib.patches import Patch
+matplotlib.rc('legend', fontsize=18)
+matplotlib.rc('ytick', labelsize=20)
+matplotlib.rc('xtick', labelsize=20)
+matplotlib.rc('axes', labelsize=20)
+matplotlib.rc('figure', figsize=(24, 6))
 
 NAME = 'fig1'
 PLT_FOLDER = os.path.join(PROJECT_FOLDER, 'simulations', 'figures', NAME)
@@ -109,6 +114,7 @@ axes[0].legend(handles=[
     Patch(color=ALGS2COLORS['igsp'], label='IGSP'),
     Patch(color=ALGS2COLORS['utigsp'], label='UT-IGSP'),
 ], loc='upper center')
+plt.tight_layout()
 plt.savefig(os.path.join(PLT_FOLDER, 'shd.png'))
 
 # === PLOT SHDS OF I-CPDAGS
@@ -129,7 +135,8 @@ axes[0].legend(handles=[
     Patch(color=ALGS2COLORS['igsp'], label='IGSP'),
     Patch(color=ALGS2COLORS['utigsp'], label='UT-IGSP'),
 ], loc='upper center')
-plt.savefig(os.path.join(PLT_FOLDER, 'shd_icpdag.png'))
+plt.tight_layout()
+plt.savefig(os.path.join(PLT_FOLDER, 'shd-icpdag.png'))
 
 # === PLOT PROPORTIONS CORRECT I-MEC
 plt.clf()
@@ -148,7 +155,8 @@ axes[-1].legend(handles=[
     Patch(color=ALGS2COLORS['igsp'], label='IGSP'),
     Patch(color=ALGS2COLORS['utigsp'], label='UT-IGSP'),
 ], loc='upper center')
-plt.savefig(os.path.join(PLT_FOLDER, 'correct_imec.png'))
+plt.tight_layout()
+plt.savefig(os.path.join(PLT_FOLDER, 'correct-imec.png'))
 
 # === PLOT PROPORTION SAME ICPDAG
 plt.clf()
@@ -167,25 +175,34 @@ axes[-1].legend(handles=[
     Patch(color=ALGS2COLORS['igsp'], label='IGSP'),
     Patch(color=ALGS2COLORS['utigsp'], label='UT-IGSP'),
 ], loc='upper center')
-plt.savefig(os.path.join(PLT_FOLDER, 'consistent_icpdag.png'))
+plt.tight_layout()
+plt.savefig(os.path.join(PLT_FOLDER, 'consistent-icpdag.png'))
 
 
 # === PLOT DIFFERENCE IN NUMBER OF INTERVENTION TARGETS RECOVERED
 plt.clf()
+fig, axes = plt.subplots(1, 2, sharey=True, figsize=(12, 6))
 for num_unknown, marker in zip([0, 1, 2, 3], MARKERS):
-    plt.plot(nsamples_list, learned_intervention_array.mean(dim='dag').sel(num_unknown=num_unknown), color='k', marker=marker)
+    axes[0].plot(nsamples_list, missing_intervention_array.mean(dim='dag').sel(num_unknown=num_unknown), color='r', marker=marker)
+    axes[1].plot(nsamples_list, added_intervention_array.mean(dim='dag').sel(num_unknown=num_unknown), color='b', marker=marker)
     # plt.plot(nsamples_list, missing_intervention_array.mean(dim='dag').sel(num_unknown=num_unknown), color='r', marker=marker)
     # plt.plot(nsamples_list, added_intervention_array.mean(dim='dag').sel(num_unknown=num_unknown), color='b', marker=marker)
-plt.xticks(nsamples_list)
-plt.xlabel('Number of samples')
-plt.ylabel('Mean symmetric difference in recovered targets')
-plt.legend(handles=[
-    *marker_handles,
-    Patch(color='k', label='Both'),
-    Patch(color='r', label='Missing'),
-    Patch(color='b', label='Added')
-])
-plt.savefig(os.path.join(PLT_FOLDER, 'recovered_targets.png'))
+axes[0].set_xticks(nsamples_list)
+axes[0].set_xlabel('Number of samples')
+axes[1].set_xticks(nsamples_list)
+axes[1].set_xlabel('Number of samples')
+axes[0].set_ylabel('Average # of false negatives')
+axes[1].set_ylabel('Average # of false positives')
+axes[0].yaxis.set_label_position('right')
+axes[1].yaxis.set_label_position('right')
+axes[0].legend(handles=[
+    *reversed(marker_handles),
+    # Patch(color='k', label='Both'),
+    # Patch(color='r', label='Missing'),
+    # Patch(color='b', label='Added')
+], loc='upper right')
+plt.tight_layout()
+plt.savefig(os.path.join(PLT_FOLDER, 'recovered-targets.png'))
 
 plt.clf()
 for num_unknown, marker in zip([0, 1, 2, 3], MARKERS):
@@ -198,7 +215,7 @@ plt.ylabel('Average number of false negatives')
 plt.legend(handles=[
     *reversed(marker_handles),
 ])
-plt.savefig(os.path.join(PLT_FOLDER, 'missing_targets.png'))
+plt.savefig(os.path.join(PLT_FOLDER, 'missing-targets.png'))
 
 plt.clf()
 for num_unknown, marker in zip([0, 1, 2, 3], MARKERS):
@@ -211,5 +228,5 @@ plt.ylabel('Average number of false positives')
 plt.legend(handles=[
     *reversed(marker_handles),
 ])
-plt.savefig(os.path.join(PLT_FOLDER, 'added_targets.png'))
+plt.savefig(os.path.join(PLT_FOLDER, 'added-targets.png'))
 

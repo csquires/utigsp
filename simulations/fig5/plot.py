@@ -70,7 +70,7 @@ for nsamples, nsettings, (num_known, num_unknown) in itr.product(nsamples_list, 
     # imec_array_icp.loc[loc] = np.loadtxt(os.path.join(icp_results_folder, 'imec.txt'))
 
     # === LOAD IGSP RESULTS
-    igsp_results_folder = os.path.join(PROJECT_FOLDER, 'simulations', 'results', dag_str, setting_str, 'igsp', 'nruns=10,depth=4,alpha=1.00e-05,alpha_invariant=1.00e-05,pool=auto')
+    igsp_results_folder = os.path.join(PROJECT_FOLDER, 'simulations', 'results', dag_str, setting_str, 'igsp', 'nruns=10,depth=4,alpha=1.00e-05,alpha_invariant=1.00e-02,pool=auto')
     igsp_exists = os.path.exists(igsp_results_folder)
     shd_array_igsp.loc[loc] = np.loadtxt(os.path.join(igsp_results_folder, 'shds.txt')) if igsp_exists else None
     imec_array_igsp.loc[loc] = np.loadtxt(os.path.join(igsp_results_folder, 'imec.txt')) if igsp_exists else None
@@ -78,7 +78,7 @@ for nsamples, nsettings, (num_known, num_unknown) in itr.product(nsamples_list, 
     consistent_array_igsp.loc[loc] = np.loadtxt(os.path.join(igsp_results_folder, 'same_icpdag.txt')) if igsp_exists else None
 
     # === LOAD UTIGSP RESULTS
-    utigsp_results_folder = os.path.join(PROJECT_FOLDER, 'simulations', 'results', dag_str, setting_str, 'utigsp', 'nruns=10,depth=4,alpha=1.00e-05,alpha_invariant=1.00e-05,pool=auto')
+    utigsp_results_folder = os.path.join(PROJECT_FOLDER, 'simulations', 'results', dag_str, setting_str, 'utigsp', 'nruns=10,depth=4,alpha=1.00e-05,alpha_invariant=1.00e-02,pool=auto')
     utigsp_exists = os.path.exists(utigsp_results_folder)
     shd_array_utigsp.loc[loc] = np.loadtxt(os.path.join(utigsp_results_folder, 'shds.txt')) if utigsp_exists else None
     imec_array_utigsp.loc[loc] = np.loadtxt(os.path.join(utigsp_results_folder, 'imec.txt')) if utigsp_exists else None

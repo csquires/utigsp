@@ -49,7 +49,7 @@ setting_list = [
 
 # === RUN UNKNOWN TARGET IGSP WITH GAUSS CI AND TARGETS REMOVED
 alpha = 3e-1
-for alpha_i in tqdm([1e-5, 1e-4, 1e-2, 1e-1, 3e-1]):
+for alpha_i in tqdm([1e-100, 1e-50]):
     file = 'utigsp_gauss_ci_unknown_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_i)
     filename = os.path.join(ESTIMATED_FOLDER, file)
     setting_list_removed = [{'known_interventions': [], 'samples': setting['samples']} for setting in setting_list]
