@@ -70,7 +70,7 @@ setting_list = [
 #         np.savetxt(filename, est_dag.to_amat())
 
 # === RUN UNKNOWN TARGET IGSP WITH HSIC
-for alpha in tqdm([2e-1, 4e-2]):
+for alpha in tqdm([4e-1]):
     alpha_invariance = 1e-5
     filename = os.path.join(ESTIMATED_FOLDER, 'utigsp_hsic_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_invariance))
     if not os.path.exists(filename):
