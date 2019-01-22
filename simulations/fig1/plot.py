@@ -19,7 +19,7 @@ nneighbors = 1.5
 ndags = 50
 dag_str = 'nnodes=%d_nneighbors=%s_ndags=%d' % (nnodes, nneighbors, ndags)
 
-nsamples_list = [100, 300, 500, 1000]
+nsamples_list = [100, 300, 500]
 nsettings_list = [5]
 ntargets_list = [(1, 0), (1, 1), (1, 2), (1, 3)]
 intervention = 'perfect1'
@@ -48,6 +48,7 @@ shd_array_utigsp = utils.empty_array(coords)
 imec_array_utigsp = utils.empty_array(coords)
 shd_icpdag_array_utigsp = utils.empty_array(coords)
 consistent_array_utigsp = utils.empty_array(coords)
+learned_intervention_array = utils.empty_array(coords)
 
 for nsamples, nsettings, (num_known, num_unknown) in itr.product(nsamples_list, nsettings_list, ntargets_list):
     setting_str = f'nsamples={nsamples},num_known={num_known},num_unknown={num_unknown},nsettings={nsettings},intervention={intervention}'
@@ -74,10 +75,12 @@ for nsamples, nsettings, (num_known, num_unknown) in itr.product(nsamples_list, 
 
     # === LOAD UTIGSP RESULTS
     utigsp_results_folder = os.path.join(PROJECT_FOLDER, 'simulations', 'results', dag_str, setting_str, 'utigsp', 'nruns=10,depth=4,alpha=1.00e-05,alpha_invariant=1.00e-05,pool=auto')
-    shd_array_utigsp.loc[loc] = np.loadtxt(os.path.join(utigsp_results_folder, 'shds.txt')) if os.path.exists(os.path.join(utigsp_results_folder)) else None
-    imec_array_utigsp.loc[loc] = np.loadtxt(os.path.join(utigsp_results_folder, 'imec.txt')) if os.path.exists(os.path.join(utigsp_results_folder)) else None
-    shd_icpdag_array_utigsp.loc[loc] = np.loadtxt(os.path.join(utigsp_results_folder, 'shds_pdag.txt')) if os.path.exists(os.path.join(utigsp_results_folder)) else None
-    consistent_array_utigsp.loc[loc] = np.loadtxt(os.path.join(utigsp_results_folder, 'same_icpdag.txt')) if os.path.exists(os.path.join(utigsp_results_folder)) else None
+    if os.path.exists(os.path.join(utigsp_results_folder)):
+        shd_array_utigsp.loc[loc] = np.loadtxt(os.path.join(utigsp_results_folder, 'shds.txt'))
+        imec_array_utigsp.loc[loc] = np.loadtxt(os.path.join(utigsp_results_folder, 'imec.txt'))
+        shd_icpdag_array_utigsp.loc[loc] = np.loadtxt(os.path.join(utigsp_results_folder, 'shds_pdag.txt'))
+        consistent_array_utigsp.loc[loc] = np.loadtxt(os.path.join(utigsp_results_folder, 'same_icpdag.txt'))
+        learned_intervention_array.loc[loc] = np.mean(np.loadtxt(os.path.join(utigsp_results_folder, 'diff_interventions.txt')), axis=1)
 
 # === CREATE HANDLES
 marker_handles = create_marker_handles([0, 1, 2, 3])
@@ -145,3 +148,17 @@ plt.legend(handles=[
     *ALG_HANDLES
 ])
 plt.savefig(os.path.join(PLT_FOLDER, 'consistent_icpdag.png'))
+
+
+# === PLOT DIFFERENCE IN NUMBER OF INTERVENTION TARGETS RECOVERED
+plt.clf()
+for num_unknown, marker in zip([0, 1, 2, 3], MARKERS):
+    plt.plot(nsamples_list, learned_intervention_array.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['utigsp'], marker=marker)
+plt.xticks(nsamples_list)
+plt.xlabel('Number of samples')
+plt.ylabel('Mean symmetric difference in recovered targets')
+plt.legend(handles=[
+    *marker_handles,
+])
+plt.savefig(os.path.join(PLT_FOLDER, 'recovered_targets.png'))
+
