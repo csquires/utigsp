@@ -173,7 +173,10 @@ if __name__ == '__main__':
 
     # === DIFFERENCE BETWEEN LEARNED AND TRUE INTERVENTIONS
     difference_interventions = [
-        len(set(true_interventions) - set(est_interventions)) + len(set(est_interventions) - set(true_interventions))
+        [
+            len(set(true_iv_nodes) - set(est_iv_nodes)) + len(set(est_iv_nodes) - set(true_iv_nodes))
+            for true_iv_nodes, est_iv_nodes in zip(true_interventions, est_interventions)
+         ]
         for true_interventions, est_interventions in zip(true_interventions_list, est_interventions_list)
     ]
     np.savetxt(os.path.join(result_folder, 'diff_interventions.txt'), difference_interventions)
