@@ -4,11 +4,11 @@ import itertools as itr
 nnodes = 8
 nneighbors = 1.5
 ndags = 100
-nsamples_list = [100, 300, 500]
+nsamples_list = [100, 200, 300, 500]
 # nsamples_list = [100, 300, 500]
 nsettings_list = [8]
 ntargets_list = [(1, 0), (1, 1), (1, 2), (1, 3)]
-intervention = 'perfect1'
+intervention = 'perfect2'
 alpha_list = [1e-5]
 alpha_invariant_list = [1e-2]
 

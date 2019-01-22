@@ -6,7 +6,11 @@ import os
 from config import PROJECT_FOLDER
 
 
-INTERVENTIONS = {'perfect1': cd.GaussIntervention(1, .01), 'inhibitory1': cd.ScalingIntervention(.1, .2)}
+INTERVENTIONS = {
+    'perfect1': cd.GaussIntervention(1, .01),
+    'perfect2': cd.GaussIntervention(1, .1),
+    'inhibitory1': cd.ScalingIntervention(.1, .2)
+}
 
 
 def get_dag_folder(ndags, nnodes, nneighbors, dag_num):
