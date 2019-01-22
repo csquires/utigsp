@@ -19,7 +19,7 @@ nneighbors = 1.5
 ndags = 50
 dag_str = 'nnodes=%d_nneighbors=%s_ndags=%d' % (nnodes, nneighbors, ndags)
 
-nsamples_list = [100, 300, 500]
+nsamples_list = [100, 300, 500, 1000]
 nsettings_list = [5]
 ntargets_list = [(1, 0), (1, 1), (1, 2), (1, 3)]
 intervention = 'perfect1'
