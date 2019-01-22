@@ -171,5 +171,12 @@ if __name__ == '__main__':
     ]
     np.savetxt(os.path.join(result_folder, 'imec.txt'), is_imec)
 
+    # === DIFFERENCE BETWEEN LEARNED AND TRUE INTERVENTIONS
+    difference_interventions = [
+        len(set(true_interventions) - set(est_interventions)) + len(set(est_interventions) - set(true_interventions))
+        for true_interventions, est_interventions in zip(true_interventions_list, est_interventions_list)
+    ]
+    np.savetxt(os.path.join(result_folder, 'diff_interventions.txt'), difference_interventions)
+
 
 

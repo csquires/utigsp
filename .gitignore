@@ -10,6 +10,7 @@ tmp_dixit*
 tmp_sachs/
 tmp_test_igsp/
 tmp_icp_test/
-simulations/data
+simulations/data/*/*/samples/*/observational.txt
+simulations/data/*/*/samples/*/interventional/
 *slurm*.out
 *.tst
