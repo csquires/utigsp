@@ -47,46 +47,46 @@ setting_list = [
 #         )
 #         np.savetxt(filename, est_dag.to_amat())
 
-# === RUN UNKNOWN TARGET IGSP WITH GAUSS CI AND TARGETS REMOVED
-for alpha in tqdm([1e-3, 1e-2, 5e-2, 1e-1, 2e-1, 3e-1, 4e-1, 5e-1]):
-    alpha_i = 1e-5
-    file = 'utigsp_gauss_ci_unknown_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_i)
-    filename = os.path.join(ESTIMATED_FOLDER, file)
-    setting_list_removed = [{'known_interventions': [], 'samples': setting['samples']} for setting in setting_list]
-    if not os.path.exists(filename):
-        est_dag, learned_interventions = unknown_target_igsp(
-            sample_dict[frozenset()],
-            setting_list_removed,
-            suffstat,
-            nnodes,
-            gauss_ci_test,
-            hsic_invariance_test,
-            alpha=alpha,
-            nruns=10,
-            alpha_invariance=1e-5
-        )
-        print(learned_interventions)
-        json.dump(list(map(list, learned_interventions)), open(os.path.join(ESTIMATED_FOLDER, 'learned_interventions_' + file), 'w'))
-        np.savetxt(filename, est_dag.to_amat())
-
-# # === RUN UNKNOWN TARGET IGSP WITH HSIC
-# for alpha in tqdm([5e-2, 3e-1]):
-#     alpha_invariance = 1e-5
-#     filename = os.path.join(ESTIMATED_FOLDER, 'utigsp_hsic_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_invariance))
+# # === RUN UNKNOWN TARGET IGSP WITH GAUSS CI AND TARGETS REMOVED
+# for alpha in tqdm([1e-3, 1e-2, 5e-2, 1e-1, 2e-1, 3e-1, 4e-1, 5e-1]):
+#     alpha_i = 1e-5
+#     file = 'utigsp_gauss_ci_unknown_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_i)
+#     filename = os.path.join(ESTIMATED_FOLDER, file)
+#     setting_list_removed = [{'known_interventions': [], 'samples': setting['samples']} for setting in setting_list]
 #     if not os.path.exists(filename):
-#         est_dag = unknown_target_igsp(
+#         est_dag, learned_interventions = unknown_target_igsp(
 #             sample_dict[frozenset()],
-#             setting_list,
-#             sample_dict[frozenset()],
+#             setting_list_removed,
+#             suffstat,
 #             nnodes,
-#             hsic_test,
+#             gauss_ci_test,
 #             hsic_invariance_test,
 #             alpha=alpha,
 #             nruns=10,
-#             alpha_invariance=alpha_invariance,
-#             verbose=True
+#             alpha_invariance=1e-5
 #         )
+#         print(learned_interventions)
+#         json.dump(list(map(list, learned_interventions)), open(os.path.join(ESTIMATED_FOLDER, 'learned_interventions_' + file), 'w'))
 #         np.savetxt(filename, est_dag.to_amat())
+
+# === RUN UNKNOWN TARGET IGSP WITH HSIC
+for alpha in tqdm([2e-1, 4e-2]):
+    alpha_invariance = 1e-5
+    filename = os.path.join(ESTIMATED_FOLDER, 'utigsp_hsic_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_invariance))
+    if not os.path.exists(filename):
+        est_dag = unknown_target_igsp(
+            sample_dict[frozenset()],
+            setting_list,
+            sample_dict[frozenset()],
+            nnodes,
+            hsic_test,
+            hsic_invariance_test,
+            alpha=alpha,
+            nruns=10,
+            alpha_invariance=alpha_invariance,
+            verbose=True
+        )
+        np.savetxt(filename, est_dag.to_amat())
 
 # # === RUN IGSP WITH GAUSS CI
 # for alpha in tqdm([2e-1, 4e-1]):

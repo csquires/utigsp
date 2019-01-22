@@ -1,11 +1,11 @@
 import os
 import itertools as itr
 
-nnodes = 20
+nnodes = 8
 nneighbors = 1.5
 ndags = 100
 nsamples_list = [100, 300, 500, 1000]
-nsettings_list = [3]
+nsettings_list = [8]
 ntargets_list = [(1, 0), (1, 1), (1, 2), (1, 3)]
 intervention = 'perfect1'
 lams = [1]

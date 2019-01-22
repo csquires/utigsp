@@ -3,7 +3,7 @@ import itertools as itr
 
 nnodes = 20
 nneighbors = 1.5
-ndags = 50
+ndags = 100
 nsamples_list = [100, 300, 500, 1000]
 # nsamples_list = [100, 300, 500]
 nsettings_list = [3]
