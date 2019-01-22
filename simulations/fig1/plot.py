@@ -43,22 +43,22 @@ for nsamples, nsettings, (num_known, num_unknown) in itr.product(nsamples_list, 
 
     # === LOAD GIES RESULTS
     gies_results_folder = os.path.join(PROJECT_FOLDER, 'simulations', 'results', dag_str, setting_str, 'gies', 'lambda_=%.2e' % 1)
-    shd_array_gies.loc[loc] = np.loadtxt(os.path.join(gies_results_folder, 'shds.txt'))
+    shd_array_gies.loc[loc] = np.loadtxt(os.path.join(gies_results_folder, 'shds_pdag.txt'))
     imec_array_gies.loc[loc] = np.loadtxt(os.path.join(gies_results_folder, 'imec.txt'))
 
     # === LOAD ICP RESULTS
     icp_results_folder = os.path.join(PROJECT_FOLDER, 'simulations', 'results', dag_str, setting_str, 'icp', 'alpha=%.2e' % .01)
-    shd_array_icp.loc[loc] = np.loadtxt(os.path.join(icp_results_folder, 'shds.txt'))
+    shd_array_icp.loc[loc] = np.loadtxt(os.path.join(icp_results_folder, 'shds_pdag.txt'))
     imec_array_icp.loc[loc] = np.loadtxt(os.path.join(icp_results_folder, 'imec.txt'))
 
     # === LOAD ICP RESULTS
     igsp_results_folder = os.path.join(PROJECT_FOLDER, 'simulations', 'results', dag_str, setting_str, 'igsp', 'nruns=10,depth=4,alpha=1.00e-05,alpha_invariant=1.00e-05,pool=auto')
-    shd_array_igsp.loc[loc] = np.loadtxt(os.path.join(igsp_results_folder, 'shds.txt'))
+    shd_array_igsp.loc[loc] = np.loadtxt(os.path.join(igsp_results_folder, 'shds_pdag.txt'))
     imec_array_igsp.loc[loc] = np.loadtxt(os.path.join(igsp_results_folder, 'imec.txt'))
 
     # === LOAD ICP RESULTS
     utigsp_results_folder = os.path.join(PROJECT_FOLDER, 'simulations', 'results', dag_str, setting_str, 'utigsp', 'nruns=10,depth=4,alpha=1.00e-05,alpha_invariant=1.00e-05,pool=auto')
-    shd_array_utigsp.loc[loc] = np.loadtxt(os.path.join(utigsp_results_folder, 'shds.txt'))
+    shd_array_utigsp.loc[loc] = np.loadtxt(os.path.join(utigsp_results_folder, 'shds_pdag.txt'))
     imec_array_utigsp.loc[loc] = np.loadtxt(os.path.join(utigsp_results_folder, 'imec.txt'))
 
 # === CREATE HANDLES

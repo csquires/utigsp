@@ -91,24 +91,43 @@ if __name__ == '__main__':
     shds = [true_dag.shd(est_dag) for true_dag, est_dag in zip(true_dags, est_dags)]
     np.savetxt(os.path.join(result_folder, 'shds.txt'), shds)
 
-    # === SAVE IS-IMEC
+    # === GET LISTS OF KNOWN AND ALL INTERVENTIONS
     def get_interventions(filename):
         known_iv_str, unknown_iv_str = filename.split(';')
         known_ivs = set(map(int, known_iv_str.split('=')[1].split(',')))
         unknown_ivs = set(map(int, known_iv_str.split('=')[1].split(',')))
-        return known_ivs | unknown_ivs
+        return known_ivs, unknown_ivs
 
 
-    intervention_filenames_list = [os.listdir(os.path.join(sample_folder, 'interventional')) for sample_folder in sample_folders]
-    interventions_list = [
-        [get_interventions(filename) for filename in intervention_filenames]
+    intervention_filenames_list = [sorted(os.listdir(os.path.join(sample_folder, 'interventional'))) for sample_folder
+                                   in sample_folders]
+    known_interventions_list = [
+        [get_interventions(filename)[0] for filename in intervention_filenames]
         for intervention_filenames in intervention_filenames_list
     ]
-    is_imec = [
-        true_dag.markov_equivalent(est_dag, interventions=interventions)
-        for true_dag, est_dag, interventions in zip(true_dags, est_dags, interventions_list)
+    true_interventions_list = [
+        [get_interventions(filename)[0] | get_interventions(filename)[1] for filename in intervention_filenames]
+        for intervention_filenames in intervention_filenames_list
     ]
+
+    # === FIND ESTIMATED PDAGS
+    est_pdags = [
+        dag.interventional_cpdag(known_ivs, cpdag=dag.cpdag())
+        for dag, known_ivs in zip(est_dags, known_interventions_list)
+    ]
+
+    # === FIND TRUE PDAGS
+    true_pdags = [
+        true_dag.interventional_cpdag(true_interventions, cpdag=true_dag.cpdag())
+        for true_dag, true_interventions in zip(true_dags, true_interventions_list)
+    ]
+
+    # === COMPARE TRUE PDAGS TO ESTIMATED PDAGS
+    is_imec = [est_pdag == true_pdag for est_pdag, true_pdag in zip(est_pdags, true_pdags)]
     np.savetxt(os.path.join(result_folder, 'imec.txt'), is_imec)
+
+    shds_pdag = [est_pdag.shd(true_pdag) for est_pdag, true_pdag in zip(est_pdags, true_pdags)]
+    np.savetxt(os.path.join(result_folder, 'shds_pdag.txt'), shds_pdag)
 
 
 
