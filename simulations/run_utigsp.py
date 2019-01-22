@@ -12,6 +12,7 @@ sys.path.append('..')
 from config import PROJECT_FOLDER
 from simulations.create_dags_and_samples import save_dags_and_samples, get_dag_samples, get_sample_folder, get_dag_folder
 import json
+from pprint import pprint
 
 overwrite = False
 
@@ -129,7 +130,7 @@ if __name__ == '__main__':
     def get_interventions(filename):
         known_iv_str, unknown_iv_str = filename.split(';')
         known_ivs = set(map(int, known_iv_str.split('=')[1].split(',')))
-        unknown_ivs = set(map(int, known_iv_str.split('=')[1].split(',')))
+        unknown_ivs = set(map(int, unknown_iv_str.split('=')[1].split(',')))
         return known_ivs, unknown_ivs
 
 
@@ -142,6 +143,8 @@ if __name__ == '__main__':
         [get_interventions(filename)[0] | get_interventions(filename)[1] for filename in intervention_filenames]
         for intervention_filenames in intervention_filenames_list
     ]
+    print(true_interventions_list[0])
+    print(est_interventions_list[0])
 
     # === FIND ESTIMATED PDAGS
     est_pdags = [
