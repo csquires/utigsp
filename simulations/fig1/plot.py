@@ -90,7 +90,7 @@ for nsamples, nsettings, (num_known, num_unknown) in itr.product(nsamples_list, 
         added_intervention_array.loc[loc] = np.mean(np.loadtxt(os.path.join(utigsp_results_folder, 'added_interventions.txt')), axis=1)
 
 # === CREATE HANDLES
-marker_handles = create_marker_handles([0, 1, 2, 3])
+marker_handles = create_marker_handles(map(lambda s: '$\ell=%d$' % s, [0, 1, 2, 3]))
 
 # === PLOT SHDS
 plt.clf()
@@ -194,12 +194,9 @@ for num_unknown, marker in zip([0, 1, 2, 3], MARKERS):
     # plt.plot(nsamples_list, added_intervention_array.mean(dim='dag').sel(num_unknown=num_unknown), color='b', marker=marker)
 plt.xticks(nsamples_list)
 plt.xlabel('Number of samples')
-plt.ylabel('Mean symmetric difference in recovered targets')
+plt.ylabel('Average number of false negatives')
 plt.legend(handles=[
-    *marker_handles,
-    Patch(color='k', label='Both'),
-    Patch(color='r', label='Missing'),
-    Patch(color='b', label='Added')
+    *reversed(marker_handles),
 ])
 plt.savefig(os.path.join(PLT_FOLDER, 'missing_targets.png'))
 
@@ -210,12 +207,9 @@ for num_unknown, marker in zip([0, 1, 2, 3], MARKERS):
     plt.plot(nsamples_list, added_intervention_array.mean(dim='dag').sel(num_unknown=num_unknown), color='b', marker=marker)
 plt.xticks(nsamples_list)
 plt.xlabel('Number of samples')
-plt.ylabel('Mean symmetric difference in recovered targets')
+plt.ylabel('Average number of false positives')
 plt.legend(handles=[
-    *marker_handles,
-    Patch(color='k', label='Both'),
-    Patch(color='r', label='Missing'),
-    Patch(color='b', label='Added')
+    *reversed(marker_handles),
 ])
 plt.savefig(os.path.join(PLT_FOLDER, 'added_targets.png'))
 
