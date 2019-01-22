@@ -1,7 +1,7 @@
 import os
 import itertools as itr
 
-nnodes = 15
+nnodes = 20
 nneighbors = 1.5
 ndags = 50
 nsamples_list = [100, 300, 500, 1000]

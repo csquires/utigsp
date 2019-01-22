@@ -37,28 +37,35 @@ utigsp_hsic_alphas = []
 gies_lambdas = []
 float_format = '%s'
 for file in os.listdir(ESTIMATED_FOLDER):
+    if file.startswith('learned_interventions'):
+        continue
     amat = np.loadtxt(os.path.join(ESTIMATED_FOLDER, file))
     if file.startswith('icp'):  # not necessarily a DAG
         est_amats_icp.append(amat)
     else:
         dag = cd.DAG.from_amat(amat)
-        if file.startswith('utigsp_gauss_ci') and file.endswith('alpha_i=%.2e.txt' % alpha_invariance):
+        if file.startswith('utigsp_gauss_ci_unknown') and file.endswith('alpha_i=%.2e.txt' % alpha_invariance):
+            pass
+            # est_dags_utigsp_gauss_ci.append(dag)
+            # alpha = float(file.split(',')[0].split('=')[1][:-4])
+            # utigsp_gauss_ci_alphas.append(float_format % alpha)
+        elif file.startswith('utigsp_gauss_ci') and file.endswith('alpha_i=%.2e.txt' % alpha_invariance):
             est_dags_utigsp_gauss_ci.append(dag)
             alpha = float(file.split(',')[0].split('=')[1][:-4])
             utigsp_gauss_ci_alphas.append(float_format % alpha)
-        if file.startswith('igsp_gauss_ci') and file.endswith('alpha_i=%.2e.txt' % alpha_invariance):
+        elif file.startswith('igsp_gauss_ci') and file.endswith('alpha_i=%.2e.txt' % alpha_invariance):
             est_dags_igsp_gauss_ci.append(dag)
             alpha = float(re.search('alpha=(\S+),', file).group()[6:-1])  # sorry this is messy
             igsp_gauss_ci_alphas.append(float_format % alpha)
-        if file.startswith('utigsp_hsic') and file.endswith('alpha_i=%.2e.txt' % alpha_invariance):
+        elif file.startswith('utigsp_hsic') and file.endswith('alpha_i=%.2e.txt' % alpha_invariance):
             est_dags_utigsp_hsic.append(dag)
             alpha = float(re.search('alpha=(\S+),', file).group()[6:-1])  # sorry this is messy
             utigsp_hsic_alphas.append(float_format % alpha)
-        if file.startswith('igsp_hsic') and file.endswith('alpha_i=%.2e.txt' % alpha_invariance):
+        elif file.startswith('igsp_hsic') and file.endswith('alpha_i=%.2e.txt' % alpha_invariance):
             est_dags_igsp_hsic.append(dag)
             alpha = float(re.search('alpha=(\S+),', file).group()[6:-1])  # sorry this is messy
             igsp_hsic_alphas.append(float_format % alpha)
-        if file.startswith('gies'):
+        elif file.startswith('gies'):
             est_dags_gies.append(dag)
             lam = float(file[len('gies_lambda='):-4])
             gies_lambdas.append(float_format % lam)
@@ -99,12 +106,12 @@ else:
     utigsp_df = utigsp_hsic_df
 # === PLOT ROC OF DAG ARCS
 plt.clf()
-plt.scatter(gies_df.sort_values(by='fp')['fp'], gies_df.sort_values(by='fp')['tp'], label='GIES', marker=ALGS2MARKERS['gies'])
-plt.scatter(icp_df.sort_values(by='fp')['fp'], icp_df.sort_values(by='fp')['tp'], label='ICP', marker=ALGS2MARKERS['icp'])
+plt.scatter(utigsp_df.sort_values(by='fp')['fp'], utigsp_df.sort_values(by='fp')['tp'], label='UT-IGSP', marker=ALGS2MARKERS['utigsp'])
 plt.scatter(igsp_df.sort_values(by='fp')['fp'], igsp_df.sort_values(by='fp')['tp'], label='IGSP', marker=ALGS2MARKERS['igsp'])
+plt.scatter(gies_df.sort_values(by='fp')['fp'], gies_df.sort_values(by='fp')['tp'], label='GIES', marker=ALGS2MARKERS['gies'])
+# plt.scatter(icp_df.sort_values(by='fp')['fp'], icp_df.sort_values(by='fp')['tp'], label='ICP', marker=ALGS2MARKERS['icp'])
 # for _, row in igsp_hsic_df.iterrows():
 #     plt.annotate(row['label'], (row['fp'], row['tp']))
-plt.scatter(utigsp_df.sort_values(by='fp')['fp'], utigsp_df.sort_values(by='fp')['tp'], label='UTIGSP', marker=ALGS2MARKERS['utigsp'])
 # plt.plot([0, npossible_arcs - len(true_dag.arcs)], [0, len(true_dag.arcs)], color='grey')
 plt.xlabel('False positives')
 plt.ylabel('True positives')
@@ -113,17 +120,18 @@ plt.savefig(os.path.join(SACHS_FOLDER, 'figures', 'sachs_roc.png'))
 
 # === PLOT ROC OF SKELETON
 plt.clf()
+
+# plt.scatter(
+#     icp_df.sort_values(by='fp_skel')['fp_skel'],
+#     icp_df.sort_values(by='fp_skel')['tp_skel'],
+#     label='ICP',
+#     marker=ALGS2MARKERS['icp']
+# )
 plt.scatter(
-    gies_df.sort_values(by='fp_skel')['fp_skel'],
-    gies_df.sort_values(by='fp_skel')['tp_skel'],
-    label='GIES',
-    marker=ALGS2MARKERS['gies']
-)
-plt.scatter(
-    icp_df.sort_values(by='fp_skel')['fp_skel'],
-    icp_df.sort_values(by='fp_skel')['tp_skel'],
-    label='ICP',
-    marker=ALGS2MARKERS['icp']
+    utigsp_df.sort_values(by='fp_skel')['fp_skel'],
+    utigsp_df.sort_values(by='fp_skel')['tp_skel'],
+    label='UT-IGSP',
+    marker=ALGS2MARKERS['utigsp']
 )
 plt.scatter(
     igsp_df.sort_values(by='fp_skel')['fp_skel'],
@@ -132,10 +140,10 @@ plt.scatter(
     marker=ALGS2MARKERS['igsp']
 )
 plt.scatter(
-    utigsp_df.sort_values(by='fp_skel')['fp_skel'],
-    utigsp_df.sort_values(by='fp_skel')['tp_skel'],
-    label='UTIGSP',
-    marker=ALGS2MARKERS['utigsp']
+    gies_df.sort_values(by='fp_skel')['fp_skel'],
+    gies_df.sort_values(by='fp_skel')['tp_skel'],
+    label='GIES',
+    marker=ALGS2MARKERS['gies']
 )
 # for _, row in igsp_hsic_df.iterrows():
 #     plt.annotate(row['label'], (row['fp_skel'], row['tp_skel']))

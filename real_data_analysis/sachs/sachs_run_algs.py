@@ -50,7 +50,8 @@ setting_list = [
 # === RUN UNKNOWN TARGET IGSP WITH GAUSS CI AND TARGETS REMOVED
 for alpha in tqdm([1e-3, 1e-2, 5e-2, 1e-1, 2e-1, 3e-1, 4e-1, 5e-1]):
     alpha_i = 1e-5
-    filename = os.path.join(ESTIMATED_FOLDER, 'utigsp_gauss_ci_unknown_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_i))
+    file = 'utigsp_gauss_ci_unknown_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_i)
+    filename = os.path.join(ESTIMATED_FOLDER, file)
     setting_list_removed = [{'known_interventions': [], 'samples': setting['samples']} for setting in setting_list]
     if not os.path.exists(filename):
         est_dag, learned_interventions = unknown_target_igsp(
@@ -64,7 +65,8 @@ for alpha in tqdm([1e-3, 1e-2, 5e-2, 1e-1, 2e-1, 3e-1, 4e-1, 5e-1]):
             nruns=10,
             alpha_invariance=1e-5
         )
-        json.dump(open('learned_interventions_' + filename, 'w'), learned_interventions)
+        print(learned_interventions)
+        json.dump(list(map(list, learned_interventions)), open(os.path.join(ESTIMATED_FOLDER, 'learned_interventions_' + file), 'w'))
         np.savetxt(filename, est_dag.to_amat())
 
 # # === RUN UNKNOWN TARGET IGSP WITH HSIC
