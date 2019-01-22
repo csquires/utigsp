@@ -107,7 +107,7 @@ if __name__ == '__main__':
     def get_interventions(filename):
         known_iv_str, unknown_iv_str = filename.split(';')
         known_ivs = set(map(int, known_iv_str.split('=')[1].split(',')))
-        unknown_ivs = set(map(int, unknown_iv_str.split('=')[1][:-4].split(',')))
+        unknown_ivs = set(map(int, unknown_iv_str.split(','))) if unknown_iv_str != '' else set()
         return known_ivs, unknown_ivs
 
 

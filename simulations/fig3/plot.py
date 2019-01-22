@@ -9,18 +9,19 @@ import numpy as np
 import itertools as itr
 import utils
 from plot_config import ALGS2COLORS, MARKERS, create_marker_handles, ALG_HANDLES
+from matplotlib.patches import Patch
 
-NAME = 'fig1'
+NAME = 'fig3'
 PLT_FOLDER = os.path.join(PROJECT_FOLDER, 'simulations', 'figures', NAME)
 os.makedirs(PLT_FOLDER, exist_ok=True)
 
-nnodes = 10
+nnodes = 20
 nneighbors = 1.5
-ndags = 50
+ndags = 100
 dag_str = 'nnodes=%d_nneighbors=%s_ndags=%d' % (nnodes, nneighbors, ndags)
 
-nsamples_list = [100, 300, 500, 1000]
-nsettings_list = [5]
+nsamples_list = [100, 300, 500]
+nsettings_list = [3]
 ntargets_list = [(1, 0), (1, 1), (1, 2), (1, 3)]
 intervention = 'perfect1'
 
@@ -48,6 +49,9 @@ shd_array_utigsp = utils.empty_array(coords)
 imec_array_utigsp = utils.empty_array(coords)
 shd_icpdag_array_utigsp = utils.empty_array(coords)
 consistent_array_utigsp = utils.empty_array(coords)
+learned_intervention_array = utils.empty_array(coords)
+missing_intervention_array = utils.empty_array(coords)
+added_intervention_array = utils.empty_array(coords)
 
 for nsamples, nsettings, (num_known, num_unknown) in itr.product(nsamples_list, nsettings_list, ntargets_list):
     setting_str = f'nsamples={nsamples},num_known={num_known},num_unknown={num_unknown},nsettings={nsettings},intervention={intervention}'
@@ -78,6 +82,9 @@ for nsamples, nsettings, (num_known, num_unknown) in itr.product(nsamples_list, 
     imec_array_utigsp.loc[loc] = np.loadtxt(os.path.join(utigsp_results_folder, 'imec.txt')) if os.path.exists(os.path.join(utigsp_results_folder)) else None
     shd_icpdag_array_utigsp.loc[loc] = np.loadtxt(os.path.join(utigsp_results_folder, 'shds_pdag.txt')) if os.path.exists(os.path.join(utigsp_results_folder)) else None
     consistent_array_utigsp.loc[loc] = np.loadtxt(os.path.join(utigsp_results_folder, 'same_icpdag.txt')) if os.path.exists(os.path.join(utigsp_results_folder)) else None
+    learned_intervention_array.loc[loc] = np.mean(np.loadtxt(os.path.join(utigsp_results_folder, 'diff_interventions.txt')), axis=1)
+    # missing_intervention_array.loc[loc] = np.mean(np.loadtxt(os.path.join(utigsp_results_folder, 'missing_interventions.txt')), axis=1)
+    # added_intervention_array.loc[loc] = np.mean(np.loadtxt(os.path.join(utigsp_results_folder, 'added_interventions.txt')), axis=1)
 
 # === CREATE HANDLES
 marker_handles = create_marker_handles([0, 1, 2, 3])
@@ -145,3 +152,20 @@ plt.legend(handles=[
     *ALG_HANDLES
 ])
 plt.savefig(os.path.join(PLT_FOLDER, 'consistent_icpdag.png'))
+
+# === PLOT DIFFERENCE IN NUMBER OF INTERVENTION TARGETS RECOVERED
+plt.clf()
+for num_unknown, marker in zip([0, 1, 2, 3], MARKERS):
+    plt.plot(nsamples_list, learned_intervention_array.mean(dim='dag').sel(num_unknown=num_unknown), color='k', marker=marker)
+    # plt.plot(nsamples_list, missing_intervention_array.mean(dim='dag').sel(num_unknown=num_unknown), color='r', marker=marker)
+    # plt.plot(nsamples_list, added_intervention_array.mean(dim='dag').sel(num_unknown=num_unknown), color='b', marker=marker)
+plt.xticks(nsamples_list)
+plt.xlabel('Number of samples')
+plt.ylabel('Mean symmetric difference in recovered targets')
+plt.legend(handles=[
+    *marker_handles,
+    Patch(color='k', label='Both'),
+    Patch(color='r', label='Missing'),
+    Patch(color='b', label='Added')
+])
+plt.savefig(os.path.join(PLT_FOLDER, 'recovered_targets.png'))

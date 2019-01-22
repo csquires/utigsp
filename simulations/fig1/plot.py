@@ -158,6 +158,38 @@ plt.savefig(os.path.join(PLT_FOLDER, 'consistent_icpdag.png'))
 # === PLOT DIFFERENCE IN NUMBER OF INTERVENTION TARGETS RECOVERED
 plt.clf()
 for num_unknown, marker in zip([0, 1, 2, 3], MARKERS):
+    plt.plot(nsamples_list, learned_intervention_array.mean(dim='dag').sel(num_unknown=num_unknown), color='k', marker=marker)
+    # plt.plot(nsamples_list, missing_intervention_array.mean(dim='dag').sel(num_unknown=num_unknown), color='r', marker=marker)
+    # plt.plot(nsamples_list, added_intervention_array.mean(dim='dag').sel(num_unknown=num_unknown), color='b', marker=marker)
+plt.xticks(nsamples_list)
+plt.xlabel('Number of samples')
+plt.ylabel('Mean symmetric difference in recovered targets')
+plt.legend(handles=[
+    *marker_handles,
+    Patch(color='k', label='Both'),
+    Patch(color='r', label='Missing'),
+    Patch(color='b', label='Added')
+])
+plt.savefig(os.path.join(PLT_FOLDER, 'recovered_targets.png'))
+
+plt.clf()
+for num_unknown, marker in zip([0, 1, 2, 3], MARKERS):
+    # plt.plot(nsamples_list, learned_intervention_array.mean(dim='dag').sel(num_unknown=num_unknown), color='k', marker=marker)
+    plt.plot(nsamples_list, missing_intervention_array.mean(dim='dag').sel(num_unknown=num_unknown), color='r', marker=marker)
+    # plt.plot(nsamples_list, added_intervention_array.mean(dim='dag').sel(num_unknown=num_unknown), color='b', marker=marker)
+plt.xticks(nsamples_list)
+plt.xlabel('Number of samples')
+plt.ylabel('Mean symmetric difference in recovered targets')
+plt.legend(handles=[
+    *marker_handles,
+    Patch(color='k', label='Both'),
+    Patch(color='r', label='Missing'),
+    Patch(color='b', label='Added')
+])
+plt.savefig(os.path.join(PLT_FOLDER, 'missing_targets.png'))
+
+plt.clf()
+for num_unknown, marker in zip([0, 1, 2, 3], MARKERS):
     # plt.plot(nsamples_list, learned_intervention_array.mean(dim='dag').sel(num_unknown=num_unknown), color='k', marker=marker)
     # plt.plot(nsamples_list, missing_intervention_array.mean(dim='dag').sel(num_unknown=num_unknown), color='r', marker=marker)
     plt.plot(nsamples_list, added_intervention_array.mean(dim='dag').sel(num_unknown=num_unknown), color='b', marker=marker)
@@ -170,5 +202,5 @@ plt.legend(handles=[
     Patch(color='r', label='Missing'),
     Patch(color='b', label='Added')
 ])
-plt.savefig(os.path.join(PLT_FOLDER, 'recovered_targets.png'))
+plt.savefig(os.path.join(PLT_FOLDER, 'added_targets.png'))
 

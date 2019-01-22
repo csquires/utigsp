@@ -11,7 +11,7 @@ import utils
 from plot_config import ALGS2COLORS, MARKERS, create_marker_handles, ALG_HANDLES
 from matplotlib.patches import Patch
 
-NAME = 'fig2'
+NAME = 'fig5'
 PLT_FOLDER = os.path.join(PROJECT_FOLDER, 'simulations', 'figures', NAME)
 os.makedirs(PLT_FOLDER, exist_ok=True)
 

@@ -25,6 +25,7 @@ alpha_invariance = 1e-5
 # === LOAD DAGS
 est_dags_igsp_gauss_ci = []
 est_dags_utigsp_gauss_ci = []
+est_dags_utigsp_gauss_ci_unknown = []
 est_dags_igsp_hsic = []
 est_dags_utigsp_hsic = []
 est_dags_gies = []
@@ -33,6 +34,7 @@ est_amats_icp = []
 igsp_gauss_ci_alphas = []
 igsp_hsic_alphas = []
 utigsp_gauss_ci_alphas = []
+utigsp_gauss_ci_alphas_unknown = []
 utigsp_hsic_alphas = []
 gies_lambdas = []
 float_format = '%s'
@@ -45,10 +47,9 @@ for file in os.listdir(ESTIMATED_FOLDER):
     else:
         dag = cd.DAG.from_amat(amat)
         if file.startswith('utigsp_gauss_ci_unknown') and file.endswith('alpha_i=%.2e.txt' % alpha_invariance):
-            pass
-            # est_dags_utigsp_gauss_ci.append(dag)
-            # alpha = float(file.split(',')[0].split('=')[1][:-4])
-            # utigsp_gauss_ci_alphas.append(float_format % alpha)
+            est_dags_utigsp_gauss_ci_unknown.append(dag)
+            alpha = float(file.split(',')[0].split('=')[1][:-4])
+            utigsp_gauss_ci_alphas_unknown.append(float_format % alpha)
         elif file.startswith('utigsp_gauss_ci') and file.endswith('alpha_i=%.2e.txt' % alpha_invariance):
             est_dags_utigsp_gauss_ci.append(dag)
             alpha = float(file.split(',')[0].split('=')[1][:-4])
@@ -92,12 +93,13 @@ def to_df_icp(est_amats, labels=None):
 
 igsp_gauss_ci_df = to_df(est_dags_igsp_gauss_ci, igsp_gauss_ci_alphas)
 utigsp_gauss_ci_df = to_df(est_dags_utigsp_gauss_ci, utigsp_gauss_ci_alphas)
+utigsp_gauss_ci_unknown_df = to_df(est_dags_utigsp_gauss_ci_unknown, utigsp_gauss_ci_alphas_unknown)
 igsp_hsic_df = to_df(est_dags_igsp_hsic, igsp_hsic_alphas)
 utigsp_hsic_df = to_df(est_dags_utigsp_hsic, utigsp_hsic_alphas)
 gies_df = to_df(est_dags_gies, gies_lambdas)
 icp_df = to_df_icp(est_amats_icp)
 
-METHOD = 'hsic'
+METHOD = 'gauss_ci'
 if METHOD == 'gauss_ci':
     igsp_df = igsp_gauss_ci_df
     utigsp_df = utigsp_gauss_ci_df
@@ -107,6 +109,7 @@ else:
 # === PLOT ROC OF DAG ARCS
 plt.clf()
 plt.scatter(utigsp_df.sort_values(by='fp')['fp'], utigsp_df.sort_values(by='fp')['tp'], label='UT-IGSP', marker=ALGS2MARKERS['utigsp'])
+plt.scatter(utigsp_gauss_ci_unknown_df.sort_values(by='fp')['fp'], utigsp_gauss_ci_unknown_df.sort_values(by='fp')['tp'], label='UT-IGSP r', marker=ALGS2MARKERS['icp'])
 plt.scatter(igsp_df.sort_values(by='fp')['fp'], igsp_df.sort_values(by='fp')['tp'], label='IGSP', marker=ALGS2MARKERS['igsp'])
 plt.scatter(gies_df.sort_values(by='fp')['fp'], gies_df.sort_values(by='fp')['tp'], label='GIES', marker=ALGS2MARKERS['gies'])
 # plt.scatter(icp_df.sort_values(by='fp')['fp'], icp_df.sort_values(by='fp')['tp'], label='ICP', marker=ALGS2MARKERS['icp'])
@@ -116,7 +119,7 @@ plt.scatter(gies_df.sort_values(by='fp')['fp'], gies_df.sort_values(by='fp')['tp
 plt.xlabel('False positives')
 plt.ylabel('True positives')
 plt.legend()
-plt.savefig(os.path.join(SACHS_FOLDER, 'figures', 'sachs_roc.png'))
+plt.savefig(os.path.join(SACHS_FOLDER, 'figures', 'sachs_'+METHOD+'_roc.png'))
 
 # === PLOT ROC OF SKELETON
 plt.clf()
@@ -132,6 +135,12 @@ plt.scatter(
     utigsp_df.sort_values(by='fp_skel')['tp_skel'],
     label='UT-IGSP',
     marker=ALGS2MARKERS['utigsp']
+)
+plt.scatter(
+    utigsp_gauss_ci_unknown_df.sort_values(by='fp_skel')['fp_skel'],
+    utigsp_gauss_ci_unknown_df.sort_values(by='fp_skel')['tp_skel'],
+    label='UT-IGSP r',
+    marker=ALGS2MARKERS['icp']
 )
 plt.scatter(
     igsp_df.sort_values(by='fp_skel')['fp_skel'],
@@ -153,5 +162,5 @@ plt.xlabel('False positives')
 plt.ylabel('True positives')
 plt.legend()
 plt.title('Skeleton')
-plt.savefig(os.path.join(SACHS_FOLDER, 'figures', 'sachs_roc_skeleton.png'))
+plt.savefig(os.path.join(SACHS_FOLDER, 'figures', 'sachs_'+METHOD+'_roc_skeleton.png'))
 
