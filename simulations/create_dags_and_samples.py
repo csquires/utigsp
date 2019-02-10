@@ -9,7 +9,8 @@ from config import PROJECT_FOLDER
 INTERVENTIONS = {
     'perfect1': cd.GaussIntervention(1, .01),
     'perfect2': cd.GaussIntervention(1, .1),
-    'inhibitory1': cd.ScalingIntervention(.1, .2)
+    'inhibitory1': cd.ScalingIntervention(.1, .2),
+    'soft1': cd.ScalingIntervention(.1, .2, mean=1)
 }
 
 

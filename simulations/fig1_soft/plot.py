@@ -28,7 +28,7 @@ dag_str = 'nnodes=%d_nneighbors=%s_ndags=%d' % (nnodes, nneighbors, ndags)
 nsamples_list = [100, 200, 300, 400, 500]
 nsettings_list = [5]
 ntargets_list = [(1, 0), (1, 1), (1, 2), (1, 3)]
-intervention = 'perfect1'
+intervention = 'soft1'
 
 coords = {
     'nsamples': nsamples_list,
