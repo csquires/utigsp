@@ -19,7 +19,7 @@ ci_test = args.ci_test
 
 # === LOAD SAMPLES AND REMOVE EXCLUDED
 sample_dict, suffstat = get_sample_dict()
-print(v.shape[0] for k, v in sample_dict.items())
+print([v.shape[0] for k, v in sample_dict.items()])
 print(sum(v.shape[0] for k, v in sample_dict.items()))
 sample_dict_exclude = {k: v for k, v in sample_dict.items() if k != frozenset({excluded})}
 setting_list = [{'known_interventions': iv_nodes, 'samples': samples} for iv_nodes, samples in sample_dict_exclude.items()]
