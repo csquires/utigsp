@@ -4,7 +4,7 @@ import sys
 sys.path.append('../..')
 from causaldag.inference.structural import unknown_target_igsp
 from causaldag.utils.ci_tests import gauss_ci_test, hsic_invariance_test, hsic_test
-from real_data_analysis.dixit.dixit_meta import get_sample_dict, ESTIMATED_FOLDER, nnodes
+from real_data_analysis.dixit.dixit_meta import get_sample_dict, ESTIMATED_FOLDER, nnodes, EFFECTIVE_NODES
 import numpy as np
 import multiprocessing
 
@@ -66,6 +66,6 @@ if __name__ == '__main__':
 
 
     with multiprocessing.Pool(multiprocessing.cpu_count() - 1) as pool:
-        nodes = list(range(24))
+        nodes = EFFECTIVE_NODES
         list(pool.imap_unordered(_run_alg, nodes))
 

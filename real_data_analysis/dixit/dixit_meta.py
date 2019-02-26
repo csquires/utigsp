@@ -12,6 +12,8 @@ nnodes = 24
 for i in range(24):
     os.makedirs(os.path.join(ESTIMATED_FOLDER, 'exclude_%d' % i), exist_ok=True)
 
+EFFECTIVE_NODES = [2, 9, 15, 16, 17, 20, 21, 22]
+
 
 def get_sample_dict():
     sample_dict = {}
