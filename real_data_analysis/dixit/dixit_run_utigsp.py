@@ -36,7 +36,7 @@ if __name__ == '__main__':
         if not os.path.exists(filename):
             if ci_test == 'gauss_ci':
                 os.system('touch gauss_ci_utigsp_%d.tst' % excluded)
-                est_dag = unknown_target_igsp(
+                est_dag, _ = unknown_target_igsp(
                     obs_samples,
                     setting_list_exclude,
                     suffstat,
@@ -49,7 +49,7 @@ if __name__ == '__main__':
                 )
             elif ci_test == 'hsic':
                 os.system('touch hsic_utigsp_%d.tst' % excluded)
-                est_dag = unknown_target_igsp(
+                est_dag, _ = unknown_target_igsp(
                     obs_samples,
                     setting_list_exclude,
                     obs_samples,
