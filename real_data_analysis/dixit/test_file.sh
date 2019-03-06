@@ -8,4 +8,4 @@
 
 module add engaging/python/3.6.0
 source ../../venv/bin/activate
-python3 dixit_run_utigsp.py --alpha .5 --ci_test hsic
+python3 dixit_run_utigsp.py --alpha .04 --ci_test hsic
