@@ -22,7 +22,7 @@ folder1 = os.path.join(ESTIMATED_FOLDER, 'exclude_2')
 # n_utigsp = sum(file.startswith('utigsp_effective_%s' % CI_TEST) for file in os.listdir(folder1))
 # n_utigsp = 3
 igsp_alphas = [1e-3, 5e-3, 1e-2, 5e-2, 1e-1, 2e-1]
-utigsp_alphas = [1e-3, 5e-3, 1e-2, 5e-2, 1e-1, 2e-1]
+utigsp_alphas = [1e-3, 5e-3, 1e-2, 2e-2, 3e-2, 4e-2, 5e-2, 1e-1, 2e-1]
 n_igsp = len(igsp_alphas)
 n_utigsp = len(utigsp_alphas)
 
