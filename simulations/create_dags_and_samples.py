@@ -78,7 +78,7 @@ def save_dags_and_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_kn
         obs_samples, settings_list = samples_by_dag[dag_num]
         dag_folder = os.path.join(base_folder, 'dag%d' % dag_num)
         os.makedirs(dag_folder, exist_ok=True)
-        np.savetxt(os.path.join(dag_folder, 'amat.txt'), dag.to_amat())
+        np.savetxt(os.path.join(dag_folder, 'amat.txt'), dag.to_amat()[0])
 
         # === SAVE SAMPLES
         sample_str = 'nsamples=%s,num_known=%d,num_unknown=%d,nsettings=%d,intervention=%s' % (nsamples, num_known, num_unknown, nsettings, intervention_str)
