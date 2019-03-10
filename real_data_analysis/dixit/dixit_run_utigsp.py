@@ -62,7 +62,7 @@ if __name__ == '__main__':
                 )
             else:
                 raise ValueError
-            np.savetxt(filename, est_dag.to_amat())
+            np.savetxt(filename, est_dag.to_amat()[0])
 
 
     with multiprocessing.Pool(multiprocessing.cpu_count() - 1) as pool:

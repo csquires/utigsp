@@ -98,7 +98,7 @@ if __name__ == '__main__':
                 nruns=nruns
             )
 
-            np.savetxt(filename, est_dag.to_amat())
+            np.savetxt(filename, est_dag.to_amat()[0])
             json.dump(list(map(list, learned_intervention_targets)), open(filename + '_learned_intervention_targets.json', 'w'))
             return est_dag, learned_intervention_targets
         else:

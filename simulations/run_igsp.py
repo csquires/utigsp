@@ -95,7 +95,7 @@ if __name__ == '__main__':
                 nruns=nruns
             )
 
-            np.savetxt(filename, est_dag.to_amat())
+            np.savetxt(filename, est_dag.to_amat()[0])
             return est_dag
         else:
             return cd.DAG.from_amat(np.loadtxt(filename))
