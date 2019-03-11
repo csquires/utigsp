@@ -16,7 +16,7 @@ matplotlib.rc('xtick', labelsize=20)
 matplotlib.rc('axes', labelsize=20)
 matplotlib.rc('figure', figsize=(24, 6))
 
-NAME = 'fig1_dense'
+NAME = 'fig1_large'
 PLT_FOLDER = os.path.join(PROJECT_FOLDER, 'simulations', 'figures', NAME)
 os.makedirs(PLT_FOLDER, exist_ok=True)
 
