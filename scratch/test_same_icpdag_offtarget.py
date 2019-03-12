@@ -6,12 +6,13 @@ np.random.seed(1729)
 random.seed(1729)
 
 num_known = 1
-num_unknown = 5
+num_unknown = 1
 nsettings = 2
 ndags = 1000
 nnodes = 20
+nneighbors = 5
 nodes = set(range(nnodes))
-dags = cd.rand.directed_erdos(nnodes, 1.5/(nnodes-1), ndags)
+dags = cd.rand.directed_erdos(nnodes, nneighbors/(nnodes-1), ndags)
 known_ivs_list = [random.sample(list(itr.combinations(nodes, num_known)), nsettings) for _ in range(ndags)]
 known_ivs_list = [list(map(set, known_ivs)) for known_ivs in known_ivs_list]
 unknown_ivs_list = [
