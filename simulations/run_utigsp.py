@@ -79,12 +79,12 @@ if __name__ == '__main__':
                 suffstat = dict(C=np.corrcoef(obs_samples, rowvar=False), n=nsamples)
             elif pooled == 'true':
                 all_samples = np.concatenate((obs_samples, *[setting['samples'] for setting in setting_list]), axis=0)
-                suffstat = dict(C=np.corrcoef(all_samples, rowvar=False), n=nsamples)
+                suffstat = dict(C=np.corrcoef(all_samples, rowvar=False), n=all_samples.shape[0])
             elif nsamples > 300:
                 suffstat = dict(C=np.corrcoef(obs_samples, rowvar=False), n=nsamples)
             else:
                 all_samples = np.concatenate((obs_samples, *[setting['samples'] for setting in setting_list]), axis=0)
-                suffstat = dict(C=np.corrcoef(all_samples, rowvar=False), n=nsamples)
+                suffstat = dict(C=np.corrcoef(all_samples, rowvar=False), n=all_samples.shape[0])
 
             est_dag, learned_intervention_targets = unknown_target_igsp(
                 obs_samples,
