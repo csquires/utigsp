@@ -75,6 +75,7 @@ if __name__ == '__main__':
             obs_samples, setting_list, _ = get_dag_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention, dag_num)
 
             if pooled == 'false':
+                print('No pooling')
                 suffstat = dict(C=np.corrcoef(obs_samples, rowvar=False), n=nsamples)
             elif pooled == 'true':
                 all_samples = np.concatenate((obs_samples, *[setting['samples'] for setting in setting_list]), axis=0)
