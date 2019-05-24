@@ -9,6 +9,7 @@ import numpy as np
 import itertools as itr
 import utils
 from plot_config import ALGS2COLORS, MARKERS, create_marker_handles, ALG_HANDLES
+from simulations.fig1_50.fig1_50_settings import *
 from matplotlib.patches import Patch
 matplotlib.rc('legend', fontsize=18)
 matplotlib.rc('ytick', labelsize=20)
@@ -22,21 +23,12 @@ os.makedirs(PLT_FOLDER, exist_ok=True)
 
 # what to plot
 UTIGSP = True
-IGSP = True
-JCIGSP = True
+IGSP = False
+JCIGSP = False
 GIES = True
 ICP = False
 
-
-nnodes = 10
-nneighbors = 1.5
-ndags = 100
-dag_str = 'nnodes=%d_nneighbors=%s_ndags=%d' % (nnodes, nneighbors, ndags)
-
-nsamples_list = [100, 200, 300, 400, 500]
-nsettings_list = [5]
-ntargets_list = [(1, 0), (1, 1), (1, 2), (1, 3)]
-intervention = 'perfect1'
+dag_str = 'nnodes=%d_nneighbors=%s_ndags=%d' % (nnodes, float(nneighbors), ndags)
 
 coords = {
     'nsamples': nsamples_list,
