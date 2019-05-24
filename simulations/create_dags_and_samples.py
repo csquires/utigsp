@@ -78,31 +78,31 @@ def save_dags_and_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_kn
         obs_samples, settings_list = samples_by_dag[dag_num]
         dag_folder = os.path.join(base_folder, 'dag%d' % dag_num)
         os.makedirs(dag_folder, exist_ok=True)
-        np.savetxt(os.path.join(dag_folder, 'amat.txt'), dag.to_amat()[0])
+        np.save(os.path.join(dag_folder, 'amat.npy'), dag.to_amat()[0])
 
         # === SAVE SAMPLES
         sample_str = 'nsamples=%s,num_known=%d,num_unknown=%d,nsettings=%d,intervention=%s' % (nsamples, num_known, num_unknown, nsettings, intervention_str)
         sample_folder = os.path.join(dag_folder, 'samples', sample_str)
         iv_sample_folder = os.path.join(sample_folder, 'interventional')
         os.makedirs(iv_sample_folder, exist_ok=True)
-        np.savetxt(os.path.join(sample_folder, 'observational.txt'), obs_samples)
+        np.save(os.path.join(sample_folder, 'observational.npy'), obs_samples)
         for setting_num, setting in enumerate(settings_list):
             known_iv_str = ','.join(map(str, setting['known_interventions']))
             unknown_iv_str = ','.join(map(str, setting['unknown_interventions']))
-            filename = os.path.join(iv_sample_folder, '%d_known_ivs=%s;unknown_ivs=%s.txt' % (setting_num, known_iv_str, unknown_iv_str))
-            np.savetxt(filename, setting['samples'])
+            filename = os.path.join(iv_sample_folder, '%d_known_ivs=%s;unknown_ivs=%s.npy' % (setting_num, known_iv_str, unknown_iv_str))
+            np.save(filename, setting['samples'])
 
 
 def get_dag_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention_str, dag_num):
     sample_folder = get_sample_folder(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention_str, dag_num)
     iv_sample_folder = os.path.join(sample_folder, 'interventional')
 
-    obs_samples = np.loadtxt(os.path.join(sample_folder, 'observational.txt'))
+    obs_samples = np.load(os.path.join(sample_folder, 'observational.npy'))
     sample_dict = {frozenset(): obs_samples}
     setting_list = []
     for file in sorted(os.listdir(iv_sample_folder)):
         known_ivs = frozenset(map(int, file.split(';')[0].split('=')[1].split(',')))
-        iv_samples = np.loadtxt(os.path.join(iv_sample_folder, file))
+        iv_samples = np.load(os.path.join(iv_sample_folder, file))
         sample_dict[known_ivs] = iv_samples
         setting_list.append({'known_interventions': known_ivs, 'samples': iv_samples})
 

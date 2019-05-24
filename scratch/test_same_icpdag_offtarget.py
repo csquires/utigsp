@@ -7,10 +7,10 @@ random.seed(1729)
 
 num_known = 1
 num_unknown = 1
-nsettings = 2
+nsettings = 3
 ndags = 1000
-nnodes = 10
-nneighbors = 1.5
+nnodes = 50
+nneighbors = 10
 nodes = set(range(nnodes))
 dags = cd.rand.directed_erdos(nnodes, nneighbors/(nnodes-1), ndags)
 known_ivs_list = [random.sample(list(itr.combinations(nodes, num_known)), nsettings) for _ in range(ndags)]

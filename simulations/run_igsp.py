@@ -3,7 +3,8 @@ import os
 import numpy as np
 import causaldag as cd
 from causaldag.inference.structural import igsp
-from causaldag.utils.ci_tests import gauss_ci_test, hsic_invariance_test
+from causaldag.utils.ci_tests import gauss_ci_test, gauss_ci_suffstat, MemoizedCI_Tester
+from causaldag.utils.invariance_tests import gauss_invariance_suffstat, gauss_invariance_test, MemoizedInvarianceTester
 import multiprocessing
 from tqdm import tqdm
 
@@ -39,6 +40,7 @@ if __name__ == '__main__':
 
     ndags = args.ndags
     nnodes = args.nnodes
+    nodes = set(range(nnodes))
     nneighbors = args.nneighbors
 
     nsamples = args.nsamples
@@ -66,39 +68,30 @@ if __name__ == '__main__':
         sample_folder = sample_folders[dag_num]
         alg_folder = os.path.join(sample_folder, 'estimates', 'igsp')
         os.makedirs(alg_folder, exist_ok=True)
-        filename = os.path.join(alg_folder, 'nruns=%d,depth=%d,alpha=%.2e,alpha_invariant=%.2e' % (nruns, depth, alpha, alpha_invariant))
+        filename = os.path.join(alg_folder, 'nruns=%d,depth=%d,alpha=%.2e,alpha_invariant=%.2e.npy' % (nruns, depth, alpha, alpha_invariant))
 
         # === RUN ALGORITHM
         if not os.path.exists(filename) or overwrite:
             obs_samples, setting_list, sample_dict = get_dag_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention, dag_num)
 
-            if pooled == 'false':
-                suffstat = dict(C=np.corrcoef(obs_samples, rowvar=False), n=nsamples)
-            elif pooled == 'true':
-                all_samples = np.concatenate((obs_samples, *[setting['samples'] for setting in setting_list]), axis=0)
-                suffstat = dict(C=np.corrcoef(all_samples, rowvar=False), n=nsamples)
-            elif nsamples > 300:
-                suffstat = dict(C=np.corrcoef(obs_samples, rowvar=False), n=nsamples)
-            else:
-                all_samples = np.concatenate((obs_samples, *[setting['samples'] for setting in setting_list]), axis=0)
-                suffstat = dict(C=np.corrcoef(all_samples, rowvar=False), n=nsamples)
+            suffstat = gauss_ci_suffstat(obs_samples)
+            suffstat_inv = gauss_invariance_suffstat(obs_samples, [setting['samples'] for setting in setting_list])
+            ci_tester = MemoizedCI_Tester(gauss_ci_test, suffstat, alpha=alpha)
+            inv_tester = MemoizedInvarianceTester(gauss_invariance_test, suffstat_inv, alpha=alpha_invariant)
 
             est_dag = igsp(
-                sample_dict,
-                suffstat,
-                nnodes,
-                gauss_ci_test,
-                hsic_invariance_test,
-                alpha=alpha,
-                alpha_invariance=alpha_invariant,
+                [{'interventions': setting['known_interventions']} for setting in setting_list],
+                nodes,
+                ci_tester,
+                inv_tester,
                 depth=depth,
                 nruns=nruns
             )
 
-            np.savetxt(filename, est_dag.to_amat()[0])
+            np.save(filename, est_dag.to_amat()[0])
             return est_dag
         else:
-            return cd.DAG.from_amat(np.loadtxt(filename))
+            return cd.DAG.from_amat(np.load(filename))
 
 
     with multiprocessing.Pool(multiprocessing.cpu_count() - 1) as pool:
@@ -113,12 +106,12 @@ if __name__ == '__main__':
     os.makedirs(result_folder, exist_ok=True)
 
     # === LOAD TRUE DAGS
-    dag_filenames = [os.path.join(get_dag_folder(ndags, nnodes, nneighbors, dag_num), 'amat.txt') for dag_num in range(ndags)]
-    true_dags = [cd.DAG.from_amat(np.loadtxt(dag_filename)) for dag_filename in dag_filenames]
+    dag_filenames = [os.path.join(get_dag_folder(ndags, nnodes, nneighbors, dag_num), 'amat.npy') for dag_num in range(ndags)]
+    true_dags = [cd.DAG.from_amat(np.load(dag_filename)) for dag_filename in dag_filenames]
 
     # === SAVE SHDS
     shds = [true_dag.shd(est_dag) for true_dag, est_dag in zip(true_dags, est_dags)]
-    np.savetxt(os.path.join(result_folder, 'shds.txt'), shds)
+    np.save(os.path.join(result_folder, 'shds.npy'), shds)
 
     # === GET LISTS OF KNOWN AND ALL INTERVENTIONS
     def get_interventions(filename):
@@ -152,13 +145,13 @@ if __name__ == '__main__':
 
     # === COMPARE TRUE PDAGS TO ESTIMATED PDAGS
     same_icpdag = [est_pdag == true_pdag for est_pdag, true_pdag in zip(est_pdags, true_pdags)]
-    np.savetxt(os.path.join(result_folder, 'same_icpdag.txt'), same_icpdag)
+    np.save(os.path.join(result_folder, 'same_icpdag.npy'), same_icpdag)
 
     shds_pdag = [est_pdag.shd(true_pdag) for est_pdag, true_pdag in zip(est_pdags, true_pdags)]
-    np.savetxt(os.path.join(result_folder, 'shds_pdag.txt'), shds_pdag)
+    np.save(os.path.join(result_folder, 'shds_pdag.npy'), shds_pdag)
 
     is_imec = [
         true_dag.markov_equivalent(est_dag, interventions=true_interventions)
         for true_dag, est_dag, true_interventions in zip(true_dags, est_dags, true_interventions_list)
     ]
-    np.savetxt(os.path.join(result_folder, 'imec.txt'), is_imec)
+    np.save(os.path.join(result_folder, 'imec.npy'), is_imec)

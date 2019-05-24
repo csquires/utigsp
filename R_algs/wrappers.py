@@ -9,7 +9,7 @@ def run_gies(sample_folder, lambda_):
     r_command = 'Rscript "%s" %s %s' % (r_file, lambda_, sample_folder)
     os.makedirs(os.path.join(sample_folder, 'estimates', 'gies'), exist_ok=True)
     os.system(r_command)
-    amat = np.loadtxt(os.path.join(sample_folder, 'estimates', 'gies', 'lambda=%.2e.txt' % lambda_))
+    amat = np.load(os.path.join(sample_folder, 'estimates', 'gies', 'lambda=%.2e.npy' % lambda_))
     return amat
 
 
