@@ -24,7 +24,7 @@ os.makedirs(PLT_FOLDER, exist_ok=True)
 # what to plot
 UTIGSP = True
 IGSP = False
-JCIGSP = False
+JCIGSP = True
 GIES = True
 ICP = False
 
