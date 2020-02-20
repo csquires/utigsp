@@ -2,7 +2,7 @@ import argparse
 import os
 import numpy as np
 import causaldag as cd
-from causaldag.inference.structural import jci_gsp
+from causaldag.structure_learning import jci_gsp
 from causaldag.utils.ci_tests import gauss_ci_test, gauss_ci_suffstat, MemoizedCI_Tester
 from causaldag.utils.invariance_tests import gauss_invariance_suffstat, gauss_invariance_test, MemoizedInvarianceTester
 import multiprocessing
@@ -38,6 +38,7 @@ if __name__ == '__main__':
     parser.add_argument('--nnodes', type=int)
     parser.add_argument('--ndags', type=int)
     parser.add_argument('--nneighbors', type=float)
+    parser.add_argument('--nonlinear', type=str)
 
     parser.add_argument('--nsamples', type=int)
     parser.add_argument('--nsettings', type=int)
@@ -49,15 +50,16 @@ if __name__ == '__main__':
     parser.add_argument('--depth', type=int, default=4)
     parser.add_argument('--alpha', type=float)
     parser.add_argument('--alpha_invariant', type=float)
-    parser.add_argument('--pooled', type=str, default='auto')
 
     # === PARSE ARGUMENTS
     args = parser.parse_args()
+    print(args, 'JCIGSP')
 
     ndags = args.ndags
     nnodes = args.nnodes
     nodes = set(range(nnodes))
     nneighbors = args.nneighbors
+    nonlinear = args.nonlinear == 'True'
 
     nsamples = args.nsamples
     nsettings = args.nsettings
@@ -69,12 +71,11 @@ if __name__ == '__main__':
     depth = args.depth
     alpha = args.alpha
     alpha_invariant = args.alpha_invariant
-    pooled = args.pooled
 
     # === CREATE DAGS AND SAMPLES: THIS MUST BE DONE THE SAME WAY EVERY TIME FOR THIS TO WORK
-    save_dags_and_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention)
+    save_dags_and_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention, nonlinear=nonlinear)
     sample_folders = [
-        get_sample_folder(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention, dag_num)
+        get_sample_folder(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention, dag_num, nonlinear=nonlinear)
         for dag_num in range(ndags)
     ]
 
@@ -88,16 +89,26 @@ if __name__ == '__main__':
 
         # === RUN ALGORITHM
         if not os.path.exists(filename) or overwrite:
-            obs_samples, setting_list, _ = get_dag_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention, dag_num)
+            obs_samples, setting_list, _ = get_dag_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention, dag_num, nonlinear=nonlinear)
 
-            suffstat = gauss_ci_suffstat(obs_samples)
-            suffstat_inv = gauss_invariance_suffstat(obs_samples, [setting['samples'] for setting in setting_list])
-            combined_ci_tester = MemoizedCI_Tester(
-                combined_gauss_ci_test,
-                dict(ci=suffstat, invariance=suffstat_inv),
-                alpha=alpha,
-                alpha_inv=alpha_invariant
-            )
+            if nonlinear:
+                suffstat = gauss_ci_suffstat(obs_samples)
+                suffstat_inv = gauss_invariance_suffstat(obs_samples, [setting['samples'] for setting in setting_list])
+                combined_ci_tester = MemoizedCI_Tester(
+                    combined_gauss_ci_test,
+                    dict(ci=suffstat, invariance=suffstat_inv),
+                    alpha=alpha,
+                    alpha_inv=alpha_invariant
+                )
+            else:
+                suffstat = gauss_ci_suffstat(obs_samples)
+                suffstat_inv = gauss_invariance_suffstat(obs_samples, [setting['samples'] for setting in setting_list])
+                combined_ci_tester = MemoizedCI_Tester(
+                    combined_gauss_ci_test,
+                    dict(ci=suffstat, invariance=suffstat_inv),
+                    alpha=alpha,
+                    alpha_inv=alpha_invariant
+                )
 
             est_dag, learned_intervention_targets = jci_gsp(
                 [{'known_interventions': setting['known_interventions']} for setting in setting_list],
@@ -121,9 +132,10 @@ if __name__ == '__main__':
     est_dags, est_interventions_list = zip(*est_dags_and_iv_targets)
 
     # === CREATE FOLDER FOR RESULTS
-    dag_str = 'nnodes=%d_nneighbors=%s_ndags=%d' % (nnodes, nneighbors, ndags)
+    nonlinear_str = '_nonlinear' if nonlinear else ''
+    dag_str = f'nnodes={nnodes}_nneighbors={nneighbors}_ndags={ndags}{nonlinear_str}'
     sample_str = 'nsamples=%s,num_known=%d,num_unknown=%d,nsettings=%d,intervention=%s' % (nsamples, num_known, num_unknown, nsettings, intervention)
-    alg_str = 'nruns=%d,depth=%d,alpha=%.2e,alpha_invariant=%.2e,pool=%s' % (nruns, depth, alpha, alpha_invariant, pooled)
+    alg_str = 'nruns=%d,depth=%d,alpha=%.2e,alpha_invariant=%.2e' % (nruns, depth, alpha, alpha_invariant)
     result_folder = os.path.join(PROJECT_FOLDER, 'simulations', 'results', dag_str, sample_str, 'jcigsp', alg_str)
     os.makedirs(result_folder, exist_ok=True)
 

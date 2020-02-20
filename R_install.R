@@ -1,5 +1,7 @@
-source("http://bioconductor.org/biocLite.R") # need to figure out way to to home
-biocLite("RBGL")
+# source("http://bioconductor.org/biocLite.R")
+# biocLite("RBGL")
+install.packages('BiocManager')
+BiocManager::install(c("RBGL"))
 install.packages('pcalg')
 install.packages('InvariantCausalPrediction')
 install.packages('RcppCNPy')

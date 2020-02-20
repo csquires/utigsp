@@ -19,6 +19,7 @@ if __name__ == '__main__':
     parser.add_argument('--nnodes', type=int)
     parser.add_argument('--ndags', type=int)
     parser.add_argument('--nneighbors', type=float)
+    parser.add_argument('--nonlinear', type=str)
 
     parser.add_argument('--nsamples', type=int)
     parser.add_argument('--nsettings', type=int)
@@ -30,11 +31,12 @@ if __name__ == '__main__':
 
     # === PARSE ARGUMENTS
     args = parser.parse_args()
-    print(args)
+    print(args, 'GIES')
 
     ndags = args.ndags
     nnodes = args.nnodes
     nneighbors = args.nneighbors
+    nonlinear = args.nonlinear == 'True'
 
     nsamples = args.nsamples
     nsettings = args.nsettings
@@ -45,9 +47,9 @@ if __name__ == '__main__':
     lam = args.lam
 
     # === CREATE DAGS AND SAMPLES: THIS MUST BE DONE THE SAME WAY EVERY TIME FOR THIS TO WORK
-    save_dags_and_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention)
+    save_dags_and_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention, nonlinear=nonlinear)
     sample_folders = [
-        get_sample_folder(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention, dag_num)
+        get_sample_folder(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention, dag_num, nonlinear=nonlinear)
         for dag_num in range(ndags)
     ]
 
@@ -77,7 +79,8 @@ if __name__ == '__main__':
         est_dags = list(tqdm(pool.imap(_run_gies, dag_nums), total=ndags))
 
     # === CREATE FOLDER FOR RESULTS
-    dag_str = 'nnodes=%d_nneighbors=%s_ndags=%d' % (nnodes, nneighbors, ndags)
+    nonlinear_str = '_nonlinear' if nonlinear else ''
+    dag_str = f'nnodes={nnodes}_nneighbors={nneighbors}_ndags={ndags}{nonlinear_str}'
     sample_str = 'nsamples=%s,num_known=%d,num_unknown=%d,nsettings=%d,intervention=%s' % (nsamples, num_known, num_unknown, nsettings, intervention)
     alg_str = 'lambda_=%.2e' % lam
     result_folder = os.path.join(PROJECT_FOLDER, 'simulations', 'results', dag_str, sample_str, 'gies', alg_str)

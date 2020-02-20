@@ -1,8 +1,9 @@
 suppressMessages(library(pcalg))
+library(pcalg)
 suppressMessages(library(RcppCNPy))
 
 # === PARSE COMMAND LINE ARGUMENTS
-args = commandArgs(trailingOnly=TRUE)
+args <- commandArgs(trailingOnly=TRUE)
 lambda = as.numeric(args[1])
 sample_path = args[2]
 
@@ -12,7 +13,7 @@ all_data = npyLoad(obs_sample_path)
 all_settings = rep(1, nrow(all_data))
 setting2targets = list()
 setting2targets[[1]] = integer(0)
-iv_sample_folder = paste(sample_path, '/interventional/', sep='')
+iv_sample_folder <- paste(sample_path, '/interventional/', sep='')
 i = 2
 for (file in list.files(iv_sample_folder)) {
     iv_data = npyLoad(paste(iv_sample_folder, file, sep=''))
@@ -26,7 +27,13 @@ for (file in list.files(iv_sample_folder)) {
 }
 
 # === ESTIMATE WITH GIES
-gies_score_fn <- new("GaussL0penIntScore", all_data, setting2targets, all_settings, lambda=lambda*.5*log(nrow(all_data))) # BIC score
+gies_score_fn = new(
+  "GaussL0penIntScore",
+  data=all_data,
+  targets=setting2targets,
+  target.index=all_settings,
+  lambda=lambda*.5*log(nrow(all_data))  # BIC score
+)
 gies.fit <- gies(gies_score_fn)
 weights = gies.fit$repr$weight.mat()
 

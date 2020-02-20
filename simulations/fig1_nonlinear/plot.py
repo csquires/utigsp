@@ -12,7 +12,7 @@ from plot_config import ALGS2COLORS, MARKERS, create_marker_handles, ALG_HANDLES
 from matplotlib.patches import Patch
 import sys
 sys.path.append('../..')
-from simulations.fig1.fig1_settings import *
+from simulations.fig1_nonlinear.fig1_settings import *
 from config import SIMULATIONS_FOLDER
 
 matplotlib.rc('legend', fontsize=18)
@@ -21,7 +21,7 @@ matplotlib.rc('xtick', labelsize=20)
 matplotlib.rc('axes', labelsize=20)
 matplotlib.rc('figure', figsize=(24, 6))
 
-NAME = 'fig1'
+NAME = 'fig1_nonlinear'
 PLT_FOLDER = os.path.join(PROJECT_FOLDER, 'simulations', 'figures', NAME)
 os.makedirs(PLT_FOLDER, exist_ok=True)
 
@@ -29,7 +29,7 @@ os.makedirs(PLT_FOLDER, exist_ok=True)
 UTIGSP = True
 IGSP = True
 JCIGSP = True
-GIES = True
+GIES = False
 ICP = False
 
 nonlinear_str = '_nonlinear' if nonlinear else ''

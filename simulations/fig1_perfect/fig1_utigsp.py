@@ -2,7 +2,7 @@ import os
 import itertools as itr
 import sys
 sys.path.append('../..')
-from simulations.fig1.fig1_settings import *
+from simulations.fig1_perfect.fig1_settings import *
 from config import SIMULATIONS_FOLDER
 
 alpha_list = [1e-5]
