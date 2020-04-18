@@ -15,3 +15,4 @@ simulations/data
 !simulations/data/*/*/estimates/*
 *slurm*.out
 *.tst
+!real_data_analysis/sachs/data

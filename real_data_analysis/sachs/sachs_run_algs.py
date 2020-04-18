@@ -12,6 +12,8 @@ from tqdm import tqdm
 os.makedirs(ESTIMATED_FOLDER, exist_ok=True)
 import json
 
+OVERWRITE = True
+
 # === LOAD SAMPLES
 sample_dict = dict()
 for file in os.listdir(SACHS_DATA_FOLDER):
@@ -31,14 +33,17 @@ setting_list = [
 ]
 iv_samples_list = [sample_dict[setting['known_interventions']] for setting in setting_list]
 invariance_suffstat = gauss_invariance_suffstat(obs_samples, iv_samples_list)
+hsic_invariance_suffstat = {iv: samples for iv, samples in enumerate(iv_samples_list)}
+hsic_invariance_suffstat['obs_samples'] = obs_samples
 
 # === RUN UNKNOWN TARGET IGSP WITH GAUSS CI
-for alpha in [6e-1, 7e-1]:
+for alpha in [1e-1, 1e-2, 1e-3, 2e-1, 3e-1, 4e-1, 5e-1, 5e-2]:
     alpha_i = 1e-5
     filename = os.path.join(ESTIMATED_FOLDER, 'utigsp_gauss_ci_alpha=%.2e.txt,alpha_i=%.2e.txt' % (alpha, alpha_i))
     ci_tester = MemoizedCI_Tester(gauss_ci_test, suffstat, alpha=alpha)
     invariance_tester = MemoizedInvarianceTester(gauss_invariance_test, invariance_suffstat, alpha=alpha_i)
-    if not os.path.exists(filename):
+    invariance_tester = MemoizedInvarianceTester(hsic_invariance_test, hsic_invariance_suffstat, alpha=alpha_i)
+    if OVERWRITE or not os.path.exists(filename):
         est_dag, _ = unknown_target_igsp(
             setting_list,
             set(range(nnodes)),
@@ -46,17 +51,18 @@ for alpha in [6e-1, 7e-1]:
             invariance_tester,
             nruns=10,
         )
-        np.savetxt(filename, est_dag.to_amat())
+        np.savetxt(filename, est_dag.to_amat()[0])
 
 # === RUN UNKNOWN TARGET IGSP WITH GAUSS CI AND TARGETS REMOVED
-alpha = 3e-1
-for alpha_i in tqdm([1e-100, 1e-50]):
+alpha_i = 1e-5
+for alpha in tqdm([1e-1, 1e-2, 1e-3, 2e-1, 3e-1, 4e-1, 5e-1, 5e-2]):
     file = 'utigsp_gauss_ci_unknown_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_i)
     filename = os.path.join(ESTIMATED_FOLDER, file)
     ci_tester = MemoizedCI_Tester(gauss_ci_test, suffstat, alpha=alpha)
     invariance_tester = MemoizedInvarianceTester(gauss_invariance_test, invariance_suffstat, alpha=alpha_i)
+    invariance_tester = MemoizedInvarianceTester(hsic_invariance_test, hsic_invariance_suffstat, alpha=alpha_i)
     setting_list_removed = [{'known_interventions': []} for setting in setting_list]
-    if not os.path.exists(filename):
+    if OVERWRITE or not os.path.exists(filename):
         est_dag, learned_interventions = unknown_target_igsp(
             setting_list_removed,
             set(range(nnodes)),
@@ -66,7 +72,7 @@ for alpha_i in tqdm([1e-100, 1e-50]):
         )
         print(learned_interventions)
         json.dump(list(map(list, learned_interventions)), open(os.path.join(ESTIMATED_FOLDER, 'learned_interventions_' + file), 'w'))
-        np.savetxt(filename, est_dag.to_amat())
+        np.savetxt(filename, est_dag.to_amat()[0])
 
 # # === RUN UNKNOWN TARGET IGSP WITH HSIC
 # for alpha in tqdm([4e-1]):
@@ -143,11 +149,11 @@ for iv_nodes, samples in sample_dict.items():
 #         np.savetxt(filename, amat)
 
 # === RUN GIES
-est_dags_gies = []
-for lambda_ in [600, 700, 800, 900]:
-    filename = os.path.join(ESTIMATED_FOLDER, 'gies_lambda=%.2e.txt' % lambda_)
-    if not os.path.exists(filename):
-        amat = run_gies(sample_folder, lambda_)
-        np.savetxt(filename, amat)
-#
-shutil.rmtree(sample_folder)
+# est_dags_gies = []
+# for lambda_ in [600, 700, 800, 900]:
+#     filename = os.path.join(ESTIMATED_FOLDER, 'gies_lambda=%.2e.txt' % lambda_)
+#     if not os.path.exists(filename):
+#         amat = run_gies(sample_folder, lambda_)
+#         np.savetxt(filename, amat)
+# #
+# shutil.rmtree(sample_folder)
