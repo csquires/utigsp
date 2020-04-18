@@ -15,7 +15,7 @@ if __name__ == '__main__':
     ):
         dag_setting_str = f'--nnodes {nnodes} --nneighbors {nneighbors} --ndags {ndags} --nonlinear {nonlinear}'
         sample_setting_str = f'--nsamples {nsamples} --nsettings {nsettings} --num_known {num_known} --num_unknown {num_unknown} --intervention {intervention}'
-        alg_setting_str = f'--alpha {alpha} --alpha_invariant {alpha_invariant} --no_targets {False}'
+        alg_setting_str = f'--alpha {alpha} --alpha_invariant {alpha_invariant} --no_targets {True}'
         full_command = f'python3 run_utigsp.py {dag_setting_str} {sample_setting_str} {alg_setting_str}'
         # os.system(f'cd .. && echo "{full_command}" > tmp.sh')
         # os.system('cd .. && cat slurm_template.sh tmp.sh > job.sh')

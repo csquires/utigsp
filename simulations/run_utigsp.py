@@ -36,6 +36,7 @@ if __name__ == '__main__':
     parser.add_argument('--depth', type=int, default=4)
     parser.add_argument('--alpha', type=float)
     parser.add_argument('--alpha_invariant', type=float)
+    parser.add_argument('--no_targets', type=str)
 
     # === PARSE ARGUMENTS
     args = parser.parse_args()
@@ -58,6 +59,9 @@ if __name__ == '__main__':
     alpha = args.alpha
     alpha_invariant = args.alpha_invariant
 
+    no_targets = args.no_targets == 'True'
+    print(f'No targets? {no_targets}')
+
     # === CREATE DAGS AND SAMPLES: THIS MUST BE DONE THE SAME WAY EVERY TIME FOR THIS TO WORK
     save_dags_and_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_known, num_unknown, intervention, nonlinear=nonlinear)
     sample_folders = [
@@ -71,7 +75,8 @@ if __name__ == '__main__':
         sample_folder = sample_folders[dag_num]
         alg_folder = os.path.join(sample_folder, 'estimates', 'utigsp')
         os.makedirs(alg_folder, exist_ok=True)
-        filename = os.path.join(alg_folder, 'nruns=%d,depth=%d,alpha=%.2e,alpha_invariant=%.2e.npy' % (nruns, depth, alpha, alpha_invariant))
+        no_target_str = '_no_targets' if no_targets else ''
+        filename = os.path.join(alg_folder, f'nruns=%d,depth=%d,alpha=%.2e,alpha_invariant=%.2e{no_target_str}.npy' % (nruns, depth, alpha, alpha_invariant))
 
         # === RUN ALGORITHM
         if not os.path.exists(filename) or overwrite:
@@ -94,7 +99,8 @@ if __name__ == '__main__':
                 ci_tester,
                 inv_tester,
                 depth=depth,
-                nruns=nruns
+                nruns=nruns,
+                no_targets=no_targets
             )
 
             np.save(filename, est_dag.to_amat()[0])
@@ -114,7 +120,7 @@ if __name__ == '__main__':
     dag_str = f'nnodes={nnodes}_nneighbors={nneighbors}_ndags={ndags}{nonlinear_str}'
     sample_str = 'nsamples=%s,num_known=%d,num_unknown=%d,nsettings=%d,intervention=%s' % (nsamples, num_known, num_unknown, nsettings, intervention)
     alg_str = 'nruns=%d,depth=%d,alpha=%.2e,alpha_invariant=%.2e' % (nruns, depth, alpha, alpha_invariant)
-    result_folder = os.path.join(PROJECT_FOLDER, 'simulations', 'results', dag_str, sample_str, 'utigsp', alg_str)
+    result_folder = os.path.join(PROJECT_FOLDER, 'simulations', 'results', dag_str, sample_str, 'utigsp_star' if no_targets else 'utigsp', alg_str)
     os.makedirs(result_folder, exist_ok=True)
     print(result_folder)
 

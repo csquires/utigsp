@@ -27,6 +27,7 @@ os.makedirs(PLT_FOLDER, exist_ok=True)
 
 # what to plot
 UTIGSP = True
+UTIGSP_STAR = True
 IGSP = True
 JCIGSP = True
 GIES = True
@@ -64,6 +65,14 @@ if UTIGSP:
     learned_iv_array_utigsp = utils.empty_array(coords)
     missing_iv_array_utigsp = utils.empty_array(coords)
     added_iv_array_utigsp = utils.empty_array(coords)
+if UTIGSP_STAR:
+    shd_array_utigsp_star = utils.empty_array(coords)
+    imec_array_utigsp_star = utils.empty_array(coords)
+    shd_icpdag_array_utigsp_star = utils.empty_array(coords)
+    consistent_array_utigsp_star = utils.empty_array(coords)
+    learned_iv_array_utigsp_star = utils.empty_array(coords)
+    missing_iv_array_utigsp_star = utils.empty_array(coords)
+    added_iv_array_utigsp_star = utils.empty_array(coords)
 if JCIGSP:
     shd_array_jcigsp = utils.empty_array(coords)
     imec_array_jcigsp = utils.empty_array(coords)
@@ -125,6 +134,21 @@ for nsamples, nsettings, (num_known, num_unknown) in itr.product(nsamples_list, 
             missing_iv_array_utigsp.loc[loc] = np.mean(np.load(os.path.join(utigsp_results_folder, 'missing_interventions.npy')), axis=1)
             added_iv_array_utigsp.loc[loc] = np.mean(np.load(os.path.join(utigsp_results_folder, 'added_interventions.npy')), axis=1)
 
+    # === LOAD UTIGSP* RESULTS
+    if UTIGSP_STAR:
+        utigsp_star_results_folder = os.path.join(
+            PROJECT_FOLDER, 'simulations', 'results', dag_str, setting_str, 'utigsp_star',
+            'nruns=10,depth=4,alpha=1.00e-05,alpha_invariant=1.00e-05'
+        )
+        if os.path.exists(os.path.join(utigsp_star_results_folder)):
+            shd_array_utigsp_star.loc[loc] = np.load(os.path.join(utigsp_star_results_folder, 'shds.npy'))
+            imec_array_utigsp_star.loc[loc] = np.load(os.path.join(utigsp_star_results_folder, 'imec.npy'))
+            shd_icpdag_array_utigsp_star.loc[loc] = np.load(os.path.join(utigsp_star_results_folder, 'shds_pdag.npy'))
+            consistent_array_utigsp_star.loc[loc] = np.load(os.path.join(utigsp_star_results_folder, 'same_icpdag.npy'))
+            learned_iv_array_utigsp_star.loc[loc] = np.mean(np.load(os.path.join(utigsp_star_results_folder, 'diff_interventions.npy')), axis=1)
+            missing_iv_array_utigsp_star.loc[loc] = np.mean(np.load(os.path.join(utigsp_star_results_folder, 'missing_interventions.npy')), axis=1)
+            added_iv_array_utigsp_star.loc[loc] = np.mean(np.load(os.path.join(utigsp_star_results_folder, 'added_interventions.npy')), axis=1)
+
     # === LOAD JCIGSP RESULTS
     if JCIGSP:
         jcigsp_results_folder = os.path.join(
@@ -157,6 +181,8 @@ if IGSP:
     alg_handles.append(Patch(color=ALGS2COLORS['igsp'], label='IGSP'))
 if UTIGSP:
     alg_handles.append(Patch(color=ALGS2COLORS['utigsp'], label='UT-IGSP'))
+if UTIGSP_STAR:
+    alg_handles.append(Patch(color=ALGS2COLORS['icp'], label='UT-IGSP*'))
 if JCIGSP:
     alg_handles.append(Patch(color=ALGS2COLORS['jcigsp'], label='JCI-GSP'))
 
@@ -172,6 +198,8 @@ for num_unknown, ax in zip([0, 1, 2, 3], axes):
         ax.plot(nsamples_list, shd_array_igsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['igsp'])
     if UTIGSP:
         ax.plot(nsamples_list, shd_array_utigsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['utigsp'])
+    if UTIGSP_STAR:
+        ax.plot(nsamples_list, shd_array_utigsp_star.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['icp'])
     if JCIGSP:
         ax.plot(nsamples_list, shd_array_jcigsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['jcigsp'])
     ax.set_xlabel('$\ell=%d$' % num_unknown)
@@ -193,6 +221,8 @@ for num_unknown, ax in zip([0, 1, 2, 3], axes):
         ax.plot(nsamples_list, shd_icpdag_array_igsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['igsp'])
     if UTIGSP:
         ax.plot(nsamples_list, shd_icpdag_array_utigsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['utigsp'])
+    if UTIGSP_STAR:
+        ax.plot(nsamples_list, shd_icpdag_array_utigsp_star.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['icp'])
     if JCIGSP:
         ax.plot(nsamples_list, shd_icpdag_array_jcigsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['jcigsp'])
     ax.set_xticks(nsamples_list)
@@ -215,6 +245,8 @@ for num_unknown, ax in zip([0, 1, 2, 3], axes):
         ax.plot(nsamples_list, imec_array_igsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['igsp'])
     if UTIGSP:
         ax.plot(nsamples_list, imec_array_utigsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['utigsp'])
+    if UTIGSP_STAR:
+        ax.plot(nsamples_list, imec_array_utigsp_star.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['icp'])
     if JCIGSP:
         ax.plot(nsamples_list, imec_array_jcigsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['jcigsp'])
     ax.set_xticks(nsamples_list)
@@ -236,6 +268,8 @@ for num_unknown, ax in zip([0, 1, 2, 3], axes):
         ax.plot(nsamples_list, consistent_array_igsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['igsp'])
     if UTIGSP:
         ax.plot(nsamples_list, consistent_array_utigsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['utigsp'])
+    if UTIGSP_STAR:
+        ax.plot(nsamples_list, consistent_array_utigsp_star.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['icp'])
     if JCIGSP:
         ax.plot(nsamples_list, consistent_array_jcigsp.mean(dim='dag').sel(num_unknown=num_unknown), color=ALGS2COLORS['jcigsp'])
     ax.set_xticks(nsamples_list)
