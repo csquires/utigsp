@@ -2,6 +2,7 @@
 # biocLite("RBGL")
 install.packages('BiocManager')
 BiocManager::install(c("RBGL"))
+install.packages('igraph')
 install.packages('pcalg')
-install.packages('InvariantCausalPrediction')
+# install.packages('InvariantCausalPrediction')
 install.packages('RcppCNPy')

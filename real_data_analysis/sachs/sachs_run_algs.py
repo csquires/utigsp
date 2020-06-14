@@ -37,30 +37,32 @@ hsic_invariance_suffstat = {iv: samples for iv, samples in enumerate(iv_samples_
 hsic_invariance_suffstat['obs_samples'] = obs_samples
 
 # === RUN UNKNOWN TARGET IGSP WITH GAUSS CI
-for alpha in [1e-1, 1e-2, 1e-3, 2e-1, 3e-1, 4e-1, 5e-1, 5e-2]:
-    alpha_i = 1e-5
+for alpha in tqdm([1e-1, 1e-2, 1e-3, 2e-1, 3e-1, 4e-1, 5e-1, 5e-2]):
+    alpha_i = 1e-20
     filename = os.path.join(ESTIMATED_FOLDER, 'utigsp_gauss_ci_alpha=%.2e.txt,alpha_i=%.2e.txt' % (alpha, alpha_i))
     ci_tester = MemoizedCI_Tester(gauss_ci_test, suffstat, alpha=alpha)
     invariance_tester = MemoizedInvarianceTester(gauss_invariance_test, invariance_suffstat, alpha=alpha_i)
-    invariance_tester = MemoizedInvarianceTester(hsic_invariance_test, hsic_invariance_suffstat, alpha=alpha_i)
+    # invariance_tester = MemoizedInvarianceTester(hsic_invariance_test, hsic_invariance_suffstat, alpha=alpha_i)
     if OVERWRITE or not os.path.exists(filename):
-        est_dag, _ = unknown_target_igsp(
+        est_dag, learned_interventions = unknown_target_igsp(
             setting_list,
             set(range(nnodes)),
             ci_tester,
             invariance_tester,
+            depth=float('inf'),
             nruns=10,
         )
+        print(learned_interventions)
         np.savetxt(filename, est_dag.to_amat()[0])
 
 # === RUN UNKNOWN TARGET IGSP WITH GAUSS CI AND TARGETS REMOVED
-alpha_i = 1e-5
+alpha_i = 1e-20
 for alpha in tqdm([1e-1, 1e-2, 1e-3, 2e-1, 3e-1, 4e-1, 5e-1, 5e-2]):
     file = 'utigsp_gauss_ci_unknown_alpha=%.2e,alpha_i=%.2e.txt' % (alpha, alpha_i)
     filename = os.path.join(ESTIMATED_FOLDER, file)
     ci_tester = MemoizedCI_Tester(gauss_ci_test, suffstat, alpha=alpha)
     invariance_tester = MemoizedInvarianceTester(gauss_invariance_test, invariance_suffstat, alpha=alpha_i)
-    invariance_tester = MemoizedInvarianceTester(hsic_invariance_test, hsic_invariance_suffstat, alpha=alpha_i)
+    # invariance_tester = MemoizedInvarianceTester(hsic_invariance_test, hsic_invariance_suffstat, alpha=alpha_i)
     setting_list_removed = [{'known_interventions': []} for setting in setting_list]
     if OVERWRITE or not os.path.exists(filename):
         est_dag, learned_interventions = unknown_target_igsp(

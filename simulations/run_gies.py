@@ -12,6 +12,7 @@ from config import PROJECT_FOLDER
 from simulations.create_dags_and_samples import save_dags_and_samples, get_dag_samples, get_sample_folder, get_dag_folder
 
 overwrite = False
+MULTITHREAD = False
 
 if __name__ == '__main__':
     # === DEFINE PARSE
@@ -73,10 +74,12 @@ if __name__ == '__main__':
         else:
             return cd.DAG.from_amat(np.load(filename))
 
-
-    with multiprocessing.Pool(multiprocessing.cpu_count() - 1) as pool:
-        dag_nums = list(range(ndags))
-        est_dags = list(tqdm(pool.imap(_run_gies, dag_nums), total=ndags))
+    if MULTITHREAD:
+        with multiprocessing.Pool(multiprocessing.cpu_count() - 1) as pool:
+            dag_nums = list(range(ndags))
+            est_dags = list(tqdm(pool.imap(_run_gies, dag_nums), total=ndags))
+    else:
+        est_dags = list(tqdm((_run_gies(dag_num) for dag_num in range(ndags)), total=ndags))
 
     # === CREATE FOLDER FOR RESULTS
     nonlinear_str = '_nonlinear' if nonlinear else ''

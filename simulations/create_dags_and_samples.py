@@ -46,7 +46,7 @@ def save_dags_and_samples(ndags, nnodes, nneighbors, nsamples, nsettings, num_kn
     intervention = INTERVENTIONS[intervention_str]
 
     # === GENERATE DAGS
-    dags = cd.rand.directed_erdos(nnodes, nneighbors/(nnodes - 1), ndags)
+    dags = cd.rand.directed_erdos(nnodes, exp_nbrs=nneighbors, size=ndags)
     if nonlinear:
         gdags = [cd.rand.rand_nn_functions(dag) for dag in dags]
     else:
